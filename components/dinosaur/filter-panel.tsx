@@ -15,6 +15,8 @@ interface FilterPanelProps {
 const periods = ['Triassic', 'Jurassic', 'Cretaceous'];
 const diets = ['Carnivore', 'Herbivore', 'Omnivore'];
 
+import { SlidersHorizontal } from 'lucide-react';
+
 export function FilterPanel({
   selectedPeriods,
   selectedDiets,
@@ -25,9 +27,14 @@ export function FilterPanel({
   const hasActiveFilters = selectedPeriods.length > 0 || selectedDiets.length > 0;
 
   return (
-    <Card className="p-6 border-muted-foreground/20 h-fit sticky top-4 space-y-6">
+    <Card className="p-6 lg:p-8 border-border/60 bg-card/60 backdrop-blur-md rounded-3xl h-fit sticky top-6 space-y-8 shadow-sm">
+      <div className="flex items-center gap-2 mb-2 pb-4 border-b border-border/50">
+        <SlidersHorizontal className="w-5 h-5 text-primary" />
+        <h2 className="font-bold text-xl text-foreground">Expedition Filters</h2>
+      </div>
+      
       <div>
-        <h3 className="font-semibold text-foreground mb-3">Period</h3>
+        <h3 className="font-semibold text-foreground mb-4">Era / Period</h3>
         <div className="space-y-2">
           {periods.map((period) => (
             <div key={period} className="flex items-center space-x-2">
