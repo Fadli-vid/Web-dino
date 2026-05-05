@@ -1,190 +1,66 @@
+import { supabase } from './supabase';
 import { Dinosaur } from './types';
 
-export const dinosaurs: Dinosaur[] = [
-  {
-    id: 'tyrannosaurus-rex',
-    name: 'Tyrannosaurus Rex',
-    scientificName: 'Tyrannosaurus rex',
-    period: 'Cretaceous',
-    length: 12.3,
-    weight: 9000,
-    diet: 'Carnivore',
-    description:
-      'The most famous dinosaur, T-Rex was a massive predator with powerful jaws and tiny arms. It roamed North America during the Late Cretaceous period.',
-    image: 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
-    imageAlt: 'Tyrannosaurus Rex illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Saurischia',
-      family: 'Tyrannosauridae',
-      genus: 'Tyrannosaurus',
-      species: 'T. rex',
-    },
-    characteristics: ['Powerful bite force', 'Bipedal stance', 'Sharp teeth', 'Short arms'],
-    fossils: 'Multiple complete skeletons',
-    discovered: '1902',
-    locationFound: 'Montana, USA',
-  },
-  {
-    id: 'triceratops',
-    name: 'Triceratops',
-    scientificName: 'Triceratops horridus',
-    period: 'Cretaceous',
-    length: 9,
-    weight: 6000,
-    diet: 'Herbivore',
-    description:
-      'A large herbivorous ceratopsian dinosaur with three distinctive horns and a bony frill. Triceratops lived during the Late Cretaceous period.',
-    image: 'https://images.unsplash.com/photo-1609234656388-0ff363383899?w=500&h=500&fit=crop',
-    imageAlt: 'Triceratops illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Ornithischia',
-      family: 'Ceratopsidae',
-      genus: 'Triceratops',
-      species: 'T. horridus',
-    },
-    characteristics: ['Three horns', 'Bony frill', 'Quadrupedal', 'Herbivorous'],
-    fossils: 'Numerous complete skulls',
-    discovered: '1887',
-    locationFound: 'Wyoming, USA',
-  },
-  {
-    id: 'brachiosaurus',
-    name: 'Brachiosaurus',
-    scientificName: 'Brachiosaurus altithorax',
-    period: 'Jurassic',
-    length: 26,
-    weight: 56000,
-    diet: 'Herbivore',
-    description:
-      'One of the largest land animals ever, Brachiosaurus had front legs longer than hind legs, allowing it to reach high vegetation during the Jurassic period.',
-    image: 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
-    imageAlt: 'Brachiosaurus illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Saurischia',
-      family: 'Sauropodomorpha',
-      genus: 'Brachiosaurus',
-      species: 'B. altithorax',
-    },
-    characteristics: ['Longest front legs', 'Massive size', 'Long neck', 'Quadrupedal'],
-    fossils: 'Partial skeletons',
-    discovered: '1903',
-    locationFound: 'Colorado, USA',
-  },
-  {
-    id: 'velociraptor',
-    name: 'Velociraptor',
-    scientificName: 'Velociraptor mongoliensis',
-    period: 'Cretaceous',
-    length: 1.8,
-    weight: 15,
-    diet: 'Carnivore',
-    description:
-      'A small but deadly predator with curved killing claws on its feet. Velociraptor hunted in packs during the Cretaceous period in Mongolia.',
-    image: 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
-    imageAlt: 'Velociraptor illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Saurischia',
-      family: 'Dromaeosauridae',
-      genus: 'Velociraptor',
-      species: 'V. mongoliensis',
-    },
-    characteristics: ['Killing claw', 'Pack hunter', 'Feathered', 'Intelligent'],
-    fossils: 'Multiple skeletons',
-    discovered: '1924',
-    locationFound: 'Mongolia',
-  },
-  {
-    id: 'stegosaurus',
-    name: 'Stegosaurus',
-    scientificName: 'Stegosaurus stenops',
-    period: 'Jurassic',
-    length: 9,
-    weight: 2000,
-    diet: 'Herbivore',
-    description:
-      'Recognizable by the row of large bony plates running along its back and spikes on its tail. Stegosaurus was a Late Jurassic herbivore.',
-    image: 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
-    imageAlt: 'Stegosaurus illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Ornithischia',
-      family: 'Stegosauridae',
-      genus: 'Stegosaurus',
-      species: 'S. stenops',
-    },
-    characteristics: ['Dorsal plates', 'Tail spikes', 'Quadrupedal', 'Defensive features'],
-    fossils: 'Multiple partial skeletons',
-    discovered: '1877',
-    locationFound: 'Colorado, USA',
-  },
-  {
-    id: 'troodon',
-    name: 'Troodon',
-    scientificName: 'Troodon formosus',
-    period: 'Cretaceous',
-    length: 2.5,
-    weight: 50,
-    diet: 'Omnivore',
-    description:
-      'One of the most intelligent dinosaurs, Troodon was an omnivore with large forward-facing eyes and a sophisticated brain for its size.',
-    image: 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
-    imageAlt: 'Troodon illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Saurischia',
-      family: 'Troodontidae',
-      genus: 'Troodon',
-      species: 'T. formosus',
-    },
-    characteristics: ['Large brain', 'Forward-facing eyes', 'Omnivorous', 'Highly intelligent'],
-    fossils: 'Partial skeletons with eggs',
-    discovered: '1856',
-    locationFound: 'Montana, USA',
-  },
-  {
-    id: 'ankylosaurus',
-    name: 'Ankylosaurus',
-    scientificName: 'Ankylosaurus magniventris',
-    period: 'Cretaceous',
-    length: 10.7,
-    weight: 4800,
-    diet: 'Herbivore',
-    description:
-      'A heavily armored herbivore covered in bony plates and spikes, with a club-like tail for defense. Ankylosaurus was a Late Cretaceous tank.',
-    image: 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
-    imageAlt: 'Ankylosaurus illustration',
-    taxonomy: {
-      kingdom: 'Animalia',
-      phylum: 'Chordata',
-      class: 'Reptilia',
-      order: 'Ornithischia',
-      family: 'Ankylosauridae',
-      genus: 'Ankylosaurus',
-      species: 'A. magniventris',
-    },
-    characteristics: ['Armor plating', 'Tail club', 'Quadrupedal', 'Heavily protected'],
-    fossils: 'Partial skeleton with armor',
-    discovered: '1908',
-    locationFound: 'Montana, USA',
-  },
-];
+// Fungsi untuk mengambil semua data dinosaurus
+export async function getDinosaurs(): Promise<Dinosaur[]> {
+  const { data, error } = await supabase
+    .from('dinosaurs')
+    .select('*');
 
-export function getDinosaurById(id: string): Dinosaur | undefined {
-  return dinosaurs.find((dino) => dino.id === id);
+  if (error) {
+    console.error('Error fetching dinosaurs:', error);
+    return [];
+  }
+
+  // Melakukan pemetaan agar nama kolom DB (snake_case) 
+  // kembali menjadi camelCase sesuai interface Typescript-mu
+  return data.map((dino) => ({
+    id: dino.id,
+    name: dino.name,
+    scientificName: dino.scientific_name,
+    period: dino.period,
+    length: dino.length,
+    weight: dino.weight,
+    diet: dino.diet,
+    description: dino.description,
+    image: dino.image || 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
+    imageAlt: dino.image_alt || dino.name + ' illustration',
+    taxonomy: dino.taxonomy,
+    characteristics: dino.characteristics,
+    fossils: dino.fossils,
+    discovered: dino.discovered,
+    locationFound: dino.location_found,
+  }));
+}
+
+// Fungsi untuk mengambil satu dinosaurus berdasarkan ID
+export async function getDinosaurById(id: string): Promise<Dinosaur | null> {
+  const { data, error } = await supabase
+    .from('dinosaurs')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+    console.error('Error fetching dinosaur by ID:', error);
+    return null;
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    scientificName: data.scientific_name,
+    period: data.period,
+    length: data.length,
+    weight: data.weight,
+    diet: data.diet,
+    description: data.description,
+    image: data.image || 'https://images.unsplash.com/photo-1618930157654-43a39d50c41c?w=500&h=500&fit=crop',
+    imageAlt: data.image_alt || data.name + ' illustration',
+    taxonomy: data.taxonomy,
+    characteristics: data.characteristics,
+    fossils: data.fossils,
+    discovered: data.discovered,
+    locationFound: data.location_found,
+  };
 }

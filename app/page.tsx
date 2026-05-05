@@ -1,6 +1,8 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { getDinosaurs } from '@/lib/dinosaurs-data';
+import { Dinosaur } from '@/lib/types';
 import { SearchBar } from '@/components/dinosaur/search-bar';
 import { FilterPanel } from '@/components/dinosaur/filter-panel';
 import { DinosaurCard } from '@/components/dinosaur/dinosaur-card';
@@ -10,7 +12,17 @@ import { Empty } from '@/components/ui/empty';
 import { Leaf, Mountain, Pickaxe, Compass } from 'lucide-react';
 
 function HomePageContent() {
-  const { filteredDinosaurs, selectedPeriods, selectedDiets } = useDinosaurFilters();
+  const [dinosaurs, setDinosaurs] = useState<Dinosaur[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getDinosaurs();
+      setDinosaurs(data);
+    }
+    fetchData();
+  }, []);
+
+  const { filteredDinosaurs, selectedPeriods, selectedDiets } = useDinosaurFilters(dinosaurs);
   const { togglePeriod, toggleDiet, setSearch, clearFilters } = useFilterNavigation();
 
   return (

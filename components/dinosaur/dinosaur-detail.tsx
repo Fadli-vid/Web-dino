@@ -67,7 +67,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
               <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-2">Diet</p>
               <Badge className={`${dietColors[dinosaur.diet]} px-3 py-1 rounded-full border-none shadow-sm font-medium`}>{dinosaur.diet}</Badge>
             </div>
-            
+
             <div className="flex items-center gap-4 pt-2">
               <div className="bg-primary/10 p-2.5 rounded-xl border border-primary/20">
                 <Ruler className="h-5 w-5 text-primary" />
@@ -77,7 +77,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
                 <p className="text-base font-bold text-foreground mt-0.5">{dinosaur.length}m</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-2.5 rounded-xl border border-primary/20">
                 <Scale className="h-5 w-5 text-primary" />
@@ -119,7 +119,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
               <h2 className="text-2xl font-bold text-foreground">Taxonomy</h2>
             </div>
             <div className="space-y-4">
-              {Object.entries(dinosaur.taxonomy).map(([key, value]) => (
+              {Object.entries(dinosaur.taxonomy || {}).map(([key, value]) => (
                 <div key={key} className="flex justify-between items-center border-b border-border/40 pb-3">
                   <p className="text-sm text-muted-foreground font-medium">{key}</p>
                   <p className="text-sm text-foreground font-bold">{value}</p>
@@ -140,7 +140,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
               <h2 className="text-2xl font-bold text-foreground">Characteristics</h2>
             </div>
             <div className="space-y-4">
-              {dinosaur.characteristics.map((char, idx) => (
+              {(dinosaur.characteristics || []).map((char, idx) => (
                 <div key={idx} className="flex items-start gap-3 text-muted-foreground bg-muted/30 p-3 rounded-xl border border-border/30">
                   <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                   <span className="font-medium text-sm">{char}</span>

@@ -8,7 +8,7 @@ interface SpeciesPageProps {
 
 export async function generateMetadata({ params }: SpeciesPageProps) {
   const { id } = await params;
-  const dinosaur = getDinosaurById(id);
+  const dinosaur = await getDinosaurById(id);
 
   if (!dinosaur) {
     return {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: SpeciesPageProps) {
 
 export default async function SpeciesPage({ params }: SpeciesPageProps) {
   const { id } = await params;
-  const dinosaur = getDinosaurById(id);
+  const dinosaur = await getDinosaurById(id);
 
   if (!dinosaur) {
     notFound();

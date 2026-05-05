@@ -2,10 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { dinosaurs } from '@/lib/dinosaurs-data';
 import { Dinosaur, FilterOptions } from '@/lib/types';
 
-export function useDinosaurFilters() {
+export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
   const searchParams = useSearchParams();
 
   const searchQuery = useMemo(() => {
@@ -23,7 +22,7 @@ export function useDinosaurFilters() {
   }, [searchParams]);
 
   const filteredDinosaurs = useMemo(() => {
-    let results = dinosaurs;
+    let results = dinosaursData;
 
     // Filter by search query
     if (searchQuery) {
@@ -46,7 +45,7 @@ export function useDinosaurFilters() {
     }
 
     return results;
-  }, [searchQuery, selectedPeriods, selectedDiets]);
+  }, [dinosaursData, searchQuery, selectedPeriods, selectedDiets]);
 
   return {
     searchQuery,
