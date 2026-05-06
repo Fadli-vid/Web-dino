@@ -22,6 +22,9 @@ export interface Dinosaur {
   fossils: string;
   discovered: string;
   locationFound: string;
+  sizeComparisonUrl?: string;
+  habitatMapUrl?: string;
+  evolutionaryTreeUrl?: string;
 }
 
 export type FilterOptions = {

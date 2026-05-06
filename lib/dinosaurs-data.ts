@@ -30,6 +30,9 @@ export async function getDinosaurs(): Promise<Dinosaur[]> {
     fossils: dino.fossils,
     discovered: dino.discovered,
     locationFound: dino.location_found,
+    sizeComparisonUrl: dino.size_comparison_url,
+    habitatMapUrl: dino.habitat_map_url,
+    evolutionaryTreeUrl: dino.evolutionary_tree_url,
   }));
 }
 
@@ -62,5 +65,8 @@ export async function getDinosaurById(id: string): Promise<Dinosaur | null> {
     fossils: data.fossils,
     discovered: data.discovered,
     locationFound: data.location_found,
+    sizeComparisonUrl: data.size_comparison_url,
+    habitatMapUrl: data.habitat_map_url,
+    evolutionaryTreeUrl: data.evolutionary_tree_url,
   };
 }
