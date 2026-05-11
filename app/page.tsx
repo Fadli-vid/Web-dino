@@ -25,7 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Leaf, Mountain, Pickaxe, Compass } from 'lucide-react';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Leaf, Mountain, Pickaxe, Compass, LayoutGrid, List } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -35,6 +36,7 @@ function HomePageContent() {
   const [dinosaurs, setDinosaurs] = useState<Dinosaur[]>([]);
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState('name-asc');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
 
@@ -287,29 +289,55 @@ function HomePageContent() {
                   <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
                     Urutkan hasil
                   </div>
-                  <Select value={sortKey} onValueChange={setSortKey}>
-                    <SelectTrigger className="w-full sm:w-[230px] rounded-full border border-border/60 bg-background/80 px-4">
-                      <SelectValue placeholder="Pilih urutan" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="name-asc">Nama (A-Z)</SelectItem>
-                      <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
-                      <SelectItem value="length-desc">Panjang (Terbesar)</SelectItem>
-                      <SelectItem value="length-asc">Panjang (Terkecil)</SelectItem>
-                      <SelectItem value="weight-desc">Berat (Terbesar)</SelectItem>
-                      <SelectItem value="weight-asc">Berat (Terkecil)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                    <Select value={sortKey} onValueChange={setSortKey}>
+                      <SelectTrigger className="w-full sm:w-[230px] rounded-full border border-border/60 bg-background/80 px-4">
+                        <SelectValue placeholder="Pilih urutan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="name-asc">Nama (A-Z)</SelectItem>
+                        <SelectItem value="name-desc">Nama (Z-A)</SelectItem>
+                        <SelectItem value="length-desc">Panjang (Terbesar)</SelectItem>
+                        <SelectItem value="length-asc">Panjang (Terkecil)</SelectItem>
+                        <SelectItem value="weight-desc">Berat (Terbesar)</SelectItem>
+                        <SelectItem value="weight-asc">Berat (Terkecil)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                        Tampilan
+                      </span>
+                      <ToggleGroup
+                        type="single"
+                        value={viewMode}
+                        onValueChange={(value) => {
+                          if (value) {
+                            setViewMode(value as 'grid' | 'list');
+                          }
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto"
+                        aria-label="Tampilan daftar"
+                      >
+                        <ToggleGroupItem value="grid" aria-label="Tampilan grid" className="flex-1 sm:flex-none">
+                          <LayoutGrid className="h-4 w-4" />
+                          Grid
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="list" aria-label="Tampilan list" className="flex-1 sm:flex-none">
+                          <List className="h-4 w-4" />
+                          List
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    </div>
+                  </div>
                 </div>
                 <div className="mb-6 rounded-3xl border border-border/60 bg-card/70 backdrop-blur px-5 py-4 shadow-sm">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+                      <div className="text-xs uppercase tracking-[0.3em] text-muted-foreground font-semibold text-[18px]">
                         Bandingkan Spesimen
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Pilih 2-3 dinosaurus untuk membandingkan era, diet, dan ukuran.
-                      </p>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
@@ -421,49 +449,157 @@ function HomePageContent() {
                     </>
                   )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pagedDinosaurs.map((dinosaur) => (
-                    <div key={dinosaur.id} className="relative">
-                      <DinosaurCard dinosaur={dinosaur} />
-                      <button
-                        type="button"
-                        onClick={() => openQuickView(dinosaur)}
-                        aria-haspopup="dialog"
-                        className="absolute left-4 top-4 z-10 rounded-full border border-border/60 bg-background/80 px-3 py-1 text-xs font-semibold text-foreground shadow-sm backdrop-blur transition-colors hover:bg-background"
-                      >
-                        Lihat cepat
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleCompare(dinosaur)}
-                        disabled={!compareSet.has(dinosaur.id) && compareLimitReached}
-                        aria-pressed={compareSet.has(dinosaur.id)}
-                        className={`absolute right-4 top-4 z-10 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur transition-colors ${
-                          compareSet.has(dinosaur.id)
-                            ? 'border-emerald-700/40 bg-emerald-600 text-white'
-                            : 'border-border/60 bg-background/80 text-foreground hover:bg-background'
-                        } ${
-                          !compareSet.has(dinosaur.id) && compareLimitReached
-                            ? 'cursor-not-allowed opacity-50'
-                            : ''
-                        }`}
-                        title={
-                          compareSet.has(dinosaur.id)
-                            ? 'Hapus dari perbandingan'
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {pagedDinosaurs.map((dinosaur) => (
+                      <div key={dinosaur.id} className="relative">
+                        <DinosaurCard dinosaur={dinosaur} />
+                        <button
+                          type="button"
+                          onClick={() => openQuickView(dinosaur)}
+                          aria-haspopup="dialog"
+                          className="absolute left-4 top-4 z-10 rounded-full border border-border/60 bg-background/80 px-3 py-1 text-xs font-semibold text-foreground shadow-sm backdrop-blur transition-colors hover:bg-background"
+                        >
+                          Lihat cepat
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleCompare(dinosaur)}
+                          disabled={!compareSet.has(dinosaur.id) && compareLimitReached}
+                          aria-pressed={compareSet.has(dinosaur.id)}
+                          className={`absolute right-4 top-4 z-10 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur transition-colors ${
+                            compareSet.has(dinosaur.id)
+                              ? 'border-emerald-700/40 bg-emerald-600 text-white'
+                              : 'border-border/60 bg-background/80 text-foreground hover:bg-background'
+                          } ${
+                            !compareSet.has(dinosaur.id) && compareLimitReached
+                              ? 'cursor-not-allowed opacity-50'
+                              : ''
+                          }`}
+                          title={
+                            compareSet.has(dinosaur.id)
+                              ? 'Hapus dari perbandingan'
+                              : compareLimitReached
+                                ? 'Maksimal 3 dinosaurus'
+                                : 'Tambahkan ke perbandingan'
+                          }
+                        >
+                          {compareSet.has(dinosaur.id)
+                            ? 'Dipilih'
                             : compareLimitReached
-                              ? 'Maksimal 3 dinosaurus'
-                              : 'Tambahkan ke perbandingan'
-                        }
-                      >
-                        {compareSet.has(dinosaur.id)
-                          ? 'Dipilih'
-                          : compareLimitReached
-                            ? 'Maks 3'
-                            : 'Bandingkan'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                              ? 'Maks 3'
+                              : 'Bandingkan'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {pagedDinosaurs.map((dinosaur) => {
+                      const compareSelected = compareSet.has(dinosaur.id);
+                      const compareDisabled = !compareSelected && compareLimitReached;
+                      const compareLabel = compareSelected
+                        ? 'Dipilih'
+                        : compareDisabled
+                          ? 'Maks 3'
+                          : 'Bandingkan';
+
+                      return (
+                        <div
+                          key={dinosaur.id}
+                          className="rounded-3xl border border-border/60 bg-card/70 backdrop-blur px-4 py-4 shadow-sm"
+                        >
+                          <div className="flex flex-col gap-4 sm:flex-row">
+                            <Link
+                              href={`/species/${dinosaur.id}`}
+                              className="relative h-40 w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 sm:h-28 sm:w-40"
+                            >
+                              <Image
+                                src={dinosaur.image}
+                                alt={dinosaur.imageAlt}
+                                fill
+                                className="object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-amber-950/40 via-transparent to-transparent" />
+                            </Link>
+                            <div className="flex flex-1 flex-col gap-3">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                  <Link
+                                    href={`/species/${dinosaur.id}`}
+                                    className="text-xl font-semibold text-foreground transition-colors hover:text-primary"
+                                  >
+                                    {dinosaur.name}
+                                  </Link>
+                                  <div className="text-sm italic text-muted-foreground">
+                                    {dinosaur.scientificName}
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <span className="rounded-full border border-amber-700/30 bg-amber-100/80 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                                    {dinosaur.period}
+                                  </span>
+                                  <span className="rounded-full border border-emerald-700/30 bg-emerald-100/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-900">
+                                    {dinosaur.diet}
+                                  </span>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {dinosaur.description}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"></span>
+                                  Panjang: {dinosaur.length} m
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"></span>
+                                  Berat: {(dinosaur.weight / 1000).toFixed(1)} ton
+                                </span>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="rounded-full"
+                                  onClick={() => openQuickView(dinosaur)}
+                                >
+                                  Lihat cepat
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant={compareSelected ? 'default' : 'outline'}
+                                  className={`rounded-full ${
+                                    compareSelected ? 'bg-emerald-600 text-white hover:bg-emerald-700' : ''
+                                  }`}
+                                  onClick={() => toggleCompare(dinosaur)}
+                                  disabled={compareDisabled}
+                                  aria-pressed={compareSelected}
+                                  title={
+                                    compareSelected
+                                      ? 'Hapus dari perbandingan'
+                                      : compareDisabled
+                                        ? 'Maksimal 3 dinosaurus'
+                                        : 'Tambahkan ke perbandingan'
+                                  }
+                                >
+                                  {compareLabel}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  asChild
+                                  className="rounded-full bg-emerald-600 text-white hover:bg-emerald-700"
+                                >
+                                  <Link href={`/species/${dinosaur.id}`}>Detail</Link>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 {filteredDinosaurs.length > PAGE_SIZE && (
                   <div className="mt-10 rounded-2xl border border-border/60 bg-card/70 backdrop-blur px-5 py-4 shadow-sm">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
