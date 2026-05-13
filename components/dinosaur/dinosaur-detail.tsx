@@ -38,7 +38,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         {/* Main Image */}
         <div className="lg:col-span-2">
           <Card className="overflow-hidden border-border/80 border-b-4 border-b-primary/20 rounded-3xl bg-card/80 backdrop-blur-md shadow-lg h-full flex flex-col">
-            <div className="relative w-full h-[400px] lg:h-[500px] bg-muted/30">
+            <div className="relative w-full aspect-[4/3] bg-muted/30">
               <Image
                 src={dinosaur.image}
                 alt={dinosaur.imageAlt}
@@ -46,7 +46,6 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
                 className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
             </div>
           </Card>
         </div>

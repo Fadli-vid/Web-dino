@@ -12,6 +12,10 @@ export function useFilterNavigation() {
       search?: string | null;
       periods?: string[];
       diets?: string[];
+      lengthMin?: number | null;
+      lengthMax?: number | null;
+      weightMin?: number | null;
+      weightMax?: number | null;
     }) => {
       const params = new URLSearchParams(searchParams);
 
@@ -35,6 +39,30 @@ export function useFilterNavigation() {
         } else {
           params.set('diets', updates.diets.join(','));
         }
+      }
+
+      if (updates.lengthMin === null) {
+        params.delete('lengthMin');
+      } else if (updates.lengthMin !== undefined) {
+        params.set('lengthMin', updates.lengthMin.toString());
+      }
+
+      if (updates.lengthMax === null) {
+        params.delete('lengthMax');
+      } else if (updates.lengthMax !== undefined) {
+        params.set('lengthMax', updates.lengthMax.toString());
+      }
+
+      if (updates.weightMin === null) {
+        params.delete('weightMin');
+      } else if (updates.weightMin !== undefined) {
+        params.set('weightMin', updates.weightMin.toString());
+      }
+
+      if (updates.weightMax === null) {
+        params.delete('weightMax');
+      } else if (updates.weightMax !== undefined) {
+        params.set('weightMax', updates.weightMax.toString());
       }
 
       const queryString = params.toString();
@@ -73,8 +101,30 @@ export function useFilterNavigation() {
   );
 
   const clearFilters = useCallback(() => {
-    updateFilters({ search: null, periods: [], diets: [] });
+    updateFilters({
+      search: null,
+      periods: [],
+      diets: [],
+      lengthMin: null,
+      lengthMax: null,
+      weightMin: null,
+      weightMax: null,
+    });
   }, [updateFilters]);
+
+  const setLengthRange = useCallback(
+    (min: number, max: number) => {
+      updateFilters({ lengthMin: min, lengthMax: max });
+    },
+    [updateFilters]
+  );
+
+  const setWeightRange = useCallback(
+    (min: number, max: number) => {
+      updateFilters({ weightMin: min, weightMax: max });
+    },
+    [updateFilters]
+  );
 
   return {
     updateFilters,
@@ -82,5 +132,7 @@ export function useFilterNavigation() {
     toggleDiet,
     setSearch,
     clearFilters,
+    setLengthRange,
+    setWeightRange,
   };
 }

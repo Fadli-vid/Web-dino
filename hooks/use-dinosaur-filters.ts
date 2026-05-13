@@ -1,8 +1,17 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
-import { Dinosaur, FilterOptions } from '@/lib/types';
+import { useMemo } from 'react';
+import { Dinosaur } from '@/lib/types';
+
+function parseNumber(value: string | null) {
+  if (value === null) {
+    return null;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
   const searchParams = useSearchParams();
@@ -20,6 +29,11 @@ export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
     const diets = searchParams.get('diets');
     return diets ? diets.split(',') : [];
   }, [searchParams]);
+
+  const lengthMin = useMemo(() => parseNumber(searchParams.get('lengthMin')), [searchParams]);
+  const lengthMax = useMemo(() => parseNumber(searchParams.get('lengthMax')), [searchParams]);
+  const weightMin = useMemo(() => parseNumber(searchParams.get('weightMin')), [searchParams]);
+  const weightMax = useMemo(() => parseNumber(searchParams.get('weightMax')), [searchParams]);
 
   const filteredDinosaurs = useMemo(() => {
     let results = dinosaursData;
@@ -44,13 +58,29 @@ export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
       results = results.filter((dino) => selectedDiets.includes(dino.diet));
     }
 
+    if (lengthMin !== null || lengthMax !== null) {
+      const min = lengthMin ?? -Infinity;
+      const max = lengthMax ?? Infinity;
+      results = results.filter((dino) => dino.length >= min && dino.length <= max);
+    }
+
+    if (weightMin !== null || weightMax !== null) {
+      const min = weightMin ?? -Infinity;
+      const max = weightMax ?? Infinity;
+      results = results.filter((dino) => dino.weight >= min && dino.weight <= max);
+    }
+
     return results;
-  }, [dinosaursData, searchQuery, selectedPeriods, selectedDiets]);
+  }, [dinosaursData, searchQuery, selectedPeriods, selectedDiets, lengthMin, lengthMax, weightMin, weightMax]);
 
   return {
     searchQuery,
     selectedPeriods,
     selectedDiets,
+    lengthMin,
+    lengthMax,
+    weightMin,
+    weightMax,
     filteredDinosaurs,
   };
 }

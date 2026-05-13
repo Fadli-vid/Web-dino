@@ -26,7 +26,10 @@ export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
   return (
     <Link href={`/species/${dinosaur.id}`} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-2xl">
       <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer h-full border-border/80 border-b-4 border-b-primary/20 hover:border-b-primary/60 group bg-card/80 backdrop-blur-sm rounded-2xl hover:-translate-y-2 flex flex-col relative">
-        <div className="relative h-56 w-full overflow-hidden bg-muted/30">
+        <div
+          className="relative w-full overflow-hidden bg-muted/30"
+          style={{ aspectRatio: '4 / 3' }}
+        >
           <Image
             src={dinosaur.image}
             alt={dinosaur.imageAlt}

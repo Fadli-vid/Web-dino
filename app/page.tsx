@@ -48,12 +48,70 @@ function HomePageContent() {
     fetchData();
   }, []);
 
-  const { filteredDinosaurs, selectedPeriods, selectedDiets, searchQuery } = useDinosaurFilters(dinosaurs);
-  const { togglePeriod, toggleDiet, setSearch, clearFilters } = useFilterNavigation();
+  const {
+    filteredDinosaurs,
+    selectedPeriods,
+    selectedDiets,
+    searchQuery,
+    lengthMin,
+    lengthMax,
+    weightMin,
+    weightMax,
+  } = useDinosaurFilters(dinosaurs);
+  const {
+    togglePeriod,
+    toggleDiet,
+    setSearch,
+    clearFilters,
+    setLengthRange,
+    setWeightRange,
+  } = useFilterNavigation();
   const totalSpecies = dinosaurs.length;
   const activeFiltersCount = selectedPeriods.length + selectedDiets.length;
   const eraFocus = selectedPeriods.length ? selectedPeriods.join(' / ') : 'All eras';
   const dietFocus = selectedDiets.length ? selectedDiets.join(' / ') : 'All diets';
+  const lengthBounds = useMemo(() => {
+    const values = dinosaurs.map((dino) => dino.length).filter(Number.isFinite);
+    if (values.length === 0) {
+      return { min: 0, max: 0 };
+    }
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    return {
+      min: Math.floor(min * 10) / 10,
+      max: Math.ceil(max * 10) / 10,
+    };
+  }, [dinosaurs]);
+  const weightBounds = useMemo(() => {
+    const values = dinosaurs.map((dino) => dino.weight).filter(Number.isFinite);
+    if (values.length === 0) {
+      return { min: 0, max: 0 };
+    }
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    return {
+      min: Math.floor(min / 100) * 100,
+      max: Math.ceil(max / 100) * 100,
+    };
+  }, [dinosaurs]);
+  const selectedLengthRange = useMemo(() => {
+    const min = lengthMin ?? lengthBounds.min;
+    const max = lengthMax ?? lengthBounds.max;
+    const clampedMin = Math.min(Math.max(min, lengthBounds.min), lengthBounds.max);
+    const clampedMax = Math.min(Math.max(max, lengthBounds.min), lengthBounds.max);
+    return clampedMin <= clampedMax
+      ? [clampedMin, clampedMax]
+      : [clampedMax, clampedMin];
+  }, [lengthMin, lengthMax, lengthBounds]);
+  const selectedWeightRange = useMemo(() => {
+    const min = weightMin ?? weightBounds.min;
+    const max = weightMax ?? weightBounds.max;
+    const clampedMin = Math.min(Math.max(min, weightBounds.min), weightBounds.max);
+    const clampedMax = Math.min(Math.max(max, weightBounds.min), weightBounds.max);
+    return clampedMin <= clampedMax
+      ? [clampedMin, clampedMax]
+      : [clampedMax, clampedMin];
+  }, [weightMin, weightMax, weightBounds]);
   const sortedDinosaurs = useMemo(() => {
     const list = [...filteredDinosaurs];
 
@@ -104,7 +162,7 @@ function HomePageContent() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, selectedPeriods, selectedDiets, sortKey]);
+  }, [searchQuery, selectedPeriods, selectedDiets, sortKey, lengthMin, lengthMax, weightMin, weightMax]);
 
   useEffect(() => {
     if (page > totalPages) {
@@ -249,6 +307,18 @@ function HomePageContent() {
             <FilterPanel
               selectedPeriods={selectedPeriods}
               selectedDiets={selectedDiets}
+              lengthBounds={lengthBounds}
+              weightBounds={weightBounds}
+              selectedLength={selectedLengthRange as [number, number]}
+              selectedWeight={selectedWeightRange as [number, number]}
+              onLengthChange={(range) => {
+                const [min, max] = range;
+                setLengthRange(Math.round(min * 10) / 10, Math.round(max * 10) / 10);
+              }}
+              onWeightChange={(range) => {
+                const [min, max] = range;
+                setWeightRange(Math.round(min), Math.round(max));
+              }}
               onPeriodChange={togglePeriod}
               onDietChange={toggleDiet}
               onReset={clearFilters}
@@ -512,7 +582,8 @@ function HomePageContent() {
                           <div className="flex flex-col gap-4 sm:flex-row">
                             <Link
                               href={`/species/${dinosaur.id}`}
-                              className="relative h-40 w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 sm:h-28 sm:w-40"
+                              className="relative w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 sm:w-40 sm:shrink-0"
+                              style={{ aspectRatio: '4 / 3' }}
                             >
                               <Image
                                 src={dinosaur.image}
@@ -650,7 +721,10 @@ function HomePageContent() {
         {quickViewDino && (
           <DialogContent className="max-w-3xl border-border/70 bg-card/90 backdrop-blur">
             <div className="grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
-              <div className="relative min-h-[240px] overflow-hidden rounded-2xl border border-border/60 bg-muted/30">
+              <div
+                className="relative w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30"
+                style={{ aspectRatio: '4 / 3' }}
+              >
                 <Image
                   src={quickViewDino.image}
                   alt={quickViewDino.imageAlt}
