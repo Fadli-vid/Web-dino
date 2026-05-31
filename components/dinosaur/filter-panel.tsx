@@ -18,6 +18,7 @@ interface FilterPanelProps {
   onPeriodChange: (period: string, checked: boolean) => void;
   onDietChange: (diet: string, checked: boolean) => void;
   onReset: () => void;
+  variant?: 'card' | 'ghost';
 }
 
 const periods = ['Triassic', 'Jurassic', 'Cretaceous'];
@@ -37,6 +38,7 @@ export function FilterPanel({
   onPeriodChange,
   onDietChange,
   onReset,
+  variant = 'card',
 }: FilterPanelProps) {
   const lengthActive =
     lengthBounds.min !== lengthBounds.max &&
@@ -110,8 +112,13 @@ export function FilterPanel({
     onWeightChange([Math.round(clampedMin * 1000), Math.round(clampedMax * 1000)]);
   };
 
+  const Container = (variant === 'ghost' ? 'div' : Card) as React.ElementType;
+  const containerClasses = variant === 'ghost'
+    ? 'space-y-8 h-fit'
+    : 'p-6 lg:p-8 border-border/70 bg-[radial-gradient(280px_120px_at_10%_0%,rgba(180,120,40,0.18),transparent)] backdrop-blur-md rounded-3xl h-fit sticky top-6 space-y-8 shadow-md';
+
   return (
-    <Card className="p-6 lg:p-8 border-border/70 bg-[radial-gradient(280px_120px_at_10%_0%,rgba(180,120,40,0.18),transparent)] backdrop-blur-md rounded-3xl h-fit sticky top-6 space-y-8 shadow-md">
+    <Container className={containerClasses}>
       <div className="rounded-2xl border border-border/60 bg-card/70 px-4 py-3">
         <div className="flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">
           <SlidersHorizontal className="w-4 h-4 text-amber-700" />
@@ -291,6 +298,6 @@ export function FilterPanel({
           </button>
         </>
       )}
-    </Card>
+    </Container>
   );
 }

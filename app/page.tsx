@@ -26,9 +26,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Leaf, Mountain, Pickaxe, Compass, LayoutGrid, List } from 'lucide-react';
+import { Leaf, Mountain, Pickaxe, Compass, LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 const PAGE_SIZE = 12;
 
@@ -302,8 +310,8 @@ function HomePageContent() {
       <div className="max-w-7xl mx-auto px-4 py-14 sm:py-20 relative">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(900px_300px_at_20%_0%,rgba(110,80,40,0.12),transparent)]"></div>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-10">
-          {/* Sidebar */}
-          <aside className="lg:col-span-1">
+          {/* Sidebar - Desktop Only */}
+          <aside className="hidden lg:block lg:col-span-1">
             <FilterPanel
               selectedPeriods={selectedPeriods}
               selectedDiets={selectedDiets}
@@ -360,6 +368,52 @@ function HomePageContent() {
                     Urutkan hasil
                   </div>
                   <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full sm:w-auto lg:hidden rounded-full border border-border/60 bg-background/80 px-4 flex items-center justify-center gap-2"
+                        >
+                          <SlidersHorizontal className="h-4 w-4" />
+                          Filter Spesimen
+                          {activeFiltersCount > 0 && (
+                            <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">
+                              {activeFiltersCount}
+                            </span>
+                          )}
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left" className="w-[300px] sm:w-[380px] p-0 border-r border-border/60 bg-card/95 backdrop-blur-xl">
+                        <SheetHeader className="p-6 pb-0 border-b border-border/10">
+                          <SheetTitle className="font-[var(--font-display)] text-xl">Expedition Filter</SheetTitle>
+                          <SheetDescription className="text-xs">
+                            Filter spesimen dinosaurus berdasarkan era, pola makan, panjang, dan berat.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="overflow-y-auto h-[calc(100vh-80px)] p-6">
+                          <FilterPanel
+                            variant="ghost"
+                            selectedPeriods={selectedPeriods}
+                            selectedDiets={selectedDiets}
+                            lengthBounds={lengthBounds}
+                            weightBounds={weightBounds}
+                            selectedLength={selectedLengthRange as [number, number]}
+                            selectedWeight={selectedWeightRange as [number, number]}
+                            onLengthChange={(range) => {
+                              const [min, max] = range;
+                              setLengthRange(Math.round(min * 10) / 10, Math.round(max * 10) / 10);
+                            }}
+                            onWeightChange={(range) => {
+                              const [min, max] = range;
+                              setWeightRange(Math.round(min), Math.round(max));
+                            }}
+                            onPeriodChange={togglePeriod}
+                            onDietChange={toggleDiet}
+                            onReset={clearFilters}
+                          />
+                        </div>
+                      </SheetContent>
+                    </Sheet>
                     <Select value={sortKey} onValueChange={setSortKey}>
                       <SelectTrigger className="w-full sm:w-[230px] rounded-full border border-border/60 bg-background/80 px-4">
                         <SelectValue placeholder="Pilih urutan" />
@@ -582,7 +636,7 @@ function HomePageContent() {
                           <div className="flex flex-col gap-4 sm:flex-row">
                             <Link
                               href={`/species/${dinosaur.id}`}
-                              className="relative w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 sm:w-40 sm:shrink-0"
+                              className="relative w-full overflow-hidden rounded-2xl border border-border/60 bg-muted/30 sm:w-40 sm:shrink-0 self-start"
                               style={{ aspectRatio: '4 / 3' }}
                             >
                               <Image
