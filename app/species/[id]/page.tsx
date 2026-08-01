@@ -1,5 +1,5 @@
 import { DinosaurDetail } from '@/components/dinosaur/dinosaur-detail';
-import { getDinosaurById } from '@/lib/dinosaurs-data';
+import { getDinosaurByIdServer } from '@/lib/dinosaurs-server';
 import { notFound } from 'next/navigation';
 
 interface SpeciesPageProps {
@@ -8,7 +8,7 @@ interface SpeciesPageProps {
 
 export async function generateMetadata({ params }: SpeciesPageProps) {
   const { id } = await params;
-  const dinosaur = await getDinosaurById(id);
+  const dinosaur = await getDinosaurByIdServer(id);
 
   if (!dinosaur) {
     return {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: SpeciesPageProps) {
 
 export default async function SpeciesPage({ params }: SpeciesPageProps) {
   const { id } = await params;
-  const dinosaur = await getDinosaurById(id);
+  const dinosaur = await getDinosaurByIdServer(id);
 
   if (!dinosaur) {
     notFound();
