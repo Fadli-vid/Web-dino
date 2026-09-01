@@ -10,53 +10,73 @@ interface DinosaurCardProps {
   dinosaur: Dinosaur;
 }
 
-const dietColors: Record<string, string> = {
-  Carnivore: 'bg-red-900/20 text-red-400',
-  Herbivore: 'bg-green-900/20 text-green-400',
-  Omnivore: 'bg-yellow-900/20 text-yellow-400',
+const dietStyles: Record<string, string> = {
+  Carnivore: 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300',
+  Herbivore: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  Omnivore: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
 };
 
-const periodColors: Record<string, string> = {
-  Triassic: 'bg-blue-900/20 text-blue-400',
-  Jurassic: 'bg-purple-900/20 text-purple-400',
-  Cretaceous: 'bg-orange-900/20 text-orange-400',
+const periodStyles: Record<string, string> = {
+  Triassic: 'border-amber-700/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  Jurassic: 'border-emerald-700/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  Cretaceous: 'border-teal-700/30 bg-teal-500/10 text-teal-700 dark:text-teal-300',
 };
 
 export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
   return (
-    <Link href={`/species/${dinosaur.id}`} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-2xl">
-      <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer h-full border-border/80 border-b-4 border-b-primary/20 hover:border-b-primary/60 group bg-card/80 backdrop-blur-sm rounded-2xl hover:-translate-y-2 flex flex-col relative">
+    <Link
+      href={`/species/${dinosaur.id}`}
+      className="group block h-full outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-2xl"
+    >
+      <Card className="overflow-hidden h-full border border-border/80 bg-card/75 backdrop-blur-md rounded-2xl transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 flex flex-col">
         <div
-          className="relative w-full overflow-hidden bg-muted/30"
+          className="relative w-full overflow-hidden bg-muted/40"
           style={{ aspectRatio: '4 / 3' }}
         >
           <Image
             src={dinosaur.image}
-            alt={dinosaur.imageAlt}
+            alt={dinosaur.imageAlt || dinosaur.name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        </div>
-        <div className="p-5 flex flex-col flex-1">
-          <div className="mb-3">
-            <h3 className="font-bold text-xl text-foreground group-hover:text-primary transition-colors line-clamp-1">
-              {dinosaur.name}
-            </h3>
-            <p className="text-sm text-muted-foreground italic line-clamp-1">{dinosaur.scientificName}</p>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{dinosaur.description}</p>
-          <div className="flex flex-wrap gap-2 pt-2 mb-4">
-            <Badge className={`${dietColors[dinosaur.diet]} px-2.5 py-0.5 rounded-full border-none shadow-sm font-medium`} variant="secondary">
-              {dinosaur.diet}
-            </Badge>
-            <Badge className={`${periodColors[dinosaur.period]} px-2.5 py-0.5 rounded-full border-none shadow-sm font-medium`} variant="secondary">
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+          
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 pointer-events-none">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border backdrop-blur-md ${periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'}`}>
               {dinosaur.period}
-            </Badge>
+            </span>
           </div>
-          <div className="text-xs text-muted-foreground pt-4 border-t border-border/60 flex justify-between items-center mt-auto">
-            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"></span>Length: {dinosaur.length}m</span>
-            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"></span>Weight: {(dinosaur.weight / 1000).toFixed(1)}t</span>
+        </div>
+
+        <div className="p-5 flex flex-col flex-1 justify-between gap-4">
+          <div>
+            <div className="flex items-baseline justify-between gap-2">
+              <h3 className="font-[var(--font-display)] text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                {dinosaur.name}
+              </h3>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${dietStyles[dinosaur.diet] || 'border-border bg-muted text-foreground'}`}>
+                {dinosaur.diet}
+              </span>
+            </div>
+            <p className="text-xs italic text-muted-foreground line-clamp-1 mt-0.5">
+              {dinosaur.scientificName}
+            </p>
+            <p className="text-xs text-muted-foreground/90 line-clamp-2 mt-3 leading-relaxed">
+              {dinosaur.description}
+            </p>
+          </div>
+
+          <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground font-medium">
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">Panjang</span>
+              <span className="font-semibold text-foreground">{dinosaur.length} m</span>
+            </div>
+            <div className="h-3 w-px bg-border/80" />
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">Berat</span>
+              <span className="font-semibold text-foreground">{(dinosaur.weight / 1000).toFixed(1)} ton</span>
+            </div>
           </div>
         </div>
       </Card>

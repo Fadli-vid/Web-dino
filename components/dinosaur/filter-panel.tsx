@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SlidersHorizontal, RotateCcw, Check } from 'lucide-react';
 
 interface FilterPanelProps {
   selectedPeriods: string[];
@@ -23,8 +22,6 @@ interface FilterPanelProps {
 
 const periods = ['Triassic', 'Jurassic', 'Cretaceous'];
 const diets = ['Carnivore', 'Herbivore', 'Omnivore'];
-
-import { SlidersHorizontal } from 'lucide-react';
 
 export function FilterPanel({
   selectedPeriods,
@@ -91,9 +88,7 @@ export function FilterPanel({
   const applyLengthRange = () => {
     const min = Number(lengthDraft.min);
     const max = Number(lengthDraft.max);
-    if (!Number.isFinite(min) || !Number.isFinite(max)) {
-      return;
-    }
+    if (!Number.isFinite(min) || !Number.isFinite(max)) return;
     const clampedMin = clampValue(min, lengthBounds.min, lengthBounds.max);
     const clampedMax = clampValue(max, lengthBounds.min, lengthBounds.max);
     onLengthChange([clampedMin, clampedMax]);
@@ -102,9 +97,7 @@ export function FilterPanel({
   const applyWeightRange = () => {
     const min = Number(weightDraft.min);
     const max = Number(weightDraft.max);
-    if (!Number.isFinite(min) || !Number.isFinite(max)) {
-      return;
-    }
+    if (!Number.isFinite(min) || !Number.isFinite(max)) return;
     const minBound = toTons(weightBounds.min);
     const maxBound = toTons(weightBounds.max);
     const clampedMin = clampValue(min, minBound, maxBound);
@@ -113,190 +106,171 @@ export function FilterPanel({
   };
 
   const Container = (variant === 'ghost' ? 'div' : Card) as React.ElementType;
-  const containerClasses = variant === 'ghost'
-    ? 'space-y-8 h-fit'
-    : 'p-6 lg:p-8 border-border/70 bg-[radial-gradient(280px_120px_at_10%_0%,rgba(180,120,40,0.18),transparent)] backdrop-blur-md rounded-3xl h-fit sticky top-6 space-y-8 shadow-md';
+  const containerClasses =
+    variant === 'ghost'
+      ? 'space-y-4 h-fit'
+      : 'p-4 sm:p-5 border border-border/80 bg-card/80 backdrop-blur-md rounded-2xl h-fit sticky top-20 space-y-4 shadow-sm';
 
   return (
     <Container className={containerClasses}>
-      <div className="rounded-2xl border border-border/60 bg-card/70 px-4 py-3">
-        <div className="flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground">
-          <SlidersHorizontal className="w-4 h-4 text-amber-700" />
-          Field Console
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="w-4 h-4 text-primary" />
+          <h2 className="font-semibold text-sm text-foreground">Filter Ekspedisi</h2>
         </div>
-        <h2 className="mt-2 font-[var(--font-display)] text-2xl text-foreground">Expedition Filter</h2>
-      </div>
-      
-      <div>
-        <h3 className="font-semibold text-foreground mb-4">Era / Periode</h3>
-        <div className="space-y-2">
-          {periods.map((period) => (
-            <div key={period} className="flex items-center space-x-2 rounded-full border border-border/60 bg-background/70 px-3 py-2">
-              <Checkbox
-                id={`period-${period}`}
-                checked={selectedPeriods.includes(period)}
-                onCheckedChange={(checked) => onPeriodChange(period, checked as boolean)}
-              />
-              <Label htmlFor={`period-${period}`} className="cursor-pointer text-sm font-normal text-foreground/80">
-                {period}
-              </Label>
-            </div>
-          ))}
-        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Reset
+          </button>
+        )}
       </div>
 
-      <div className="border-t border-muted-foreground/10" />
-
-      <div>
-        <h3 className="font-semibold text-foreground mb-3">Pola Makan</h3>
-        <div className="space-y-2">
-          {diets.map((diet) => (
-            <div key={diet} className="flex items-center space-x-2 rounded-full border border-border/60 bg-background/70 px-3 py-2">
-              <Checkbox
-                id={`diet-${diet}`}
-                checked={selectedDiets.includes(diet)}
-                onCheckedChange={(checked) => onDietChange(diet, checked as boolean)}
-              />
-              <Label htmlFor={`diet-${diet}`} className="cursor-pointer text-sm font-normal text-foreground/80">
-                {diet}
-              </Label>
-            </div>
-          ))}
+      {/* Period Filter (Compact Chips) */}
+      <div className="space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Era / Periode
+        </span>
+        <div className="grid grid-cols-3 gap-1.5">
+          {periods.map((period) => {
+            const isChecked = selectedPeriods.includes(period);
+            return (
+              <button
+                key={period}
+                type="button"
+                onClick={() => onPeriodChange(period, !isChecked)}
+                className={`py-1.5 px-1 rounded-lg text-xs font-medium transition-all text-center border flex items-center justify-center gap-1 ${
+                  isChecked
+                    ? 'border-primary/60 bg-primary/15 text-foreground font-semibold shadow-xs'
+                    : 'border-border/60 bg-background/50 text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+                title={period === 'Triassic' ? '252-201 Ma' : period === 'Jurassic' ? '201-145 Ma' : '145-66 Ma'}
+              >
+                {isChecked && <Check className="w-3 h-3 text-primary shrink-0" />}
+                <span className="truncate">{period}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="border-t border-muted-foreground/10" />
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-foreground">Rentang Panjang</h3>
-          <span className="text-xs text-muted-foreground">
-            {formatLength(selectedLength[0])} - {formatLength(selectedLength[1])} m
-          </span>
+      {/* Diet Filter (Compact Chips) */}
+      <div className="space-y-2">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Pola Makan
+        </span>
+        <div className="grid grid-cols-3 gap-1.5">
+          {diets.map((diet) => {
+            const isChecked = selectedDiets.includes(diet);
+            return (
+              <button
+                key={diet}
+                type="button"
+                onClick={() => onDietChange(diet, !isChecked)}
+                className={`py-1.5 px-1 rounded-lg text-xs font-medium transition-all text-center border flex items-center justify-center gap-1 ${
+                  isChecked
+                    ? 'border-primary/60 bg-primary/15 text-foreground font-semibold shadow-xs'
+                    : 'border-border/60 bg-background/50 text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {isChecked && <Check className="w-3 h-3 text-primary shrink-0" />}
+                <span className="truncate">{diet}</span>
+              </button>
+            );
+          })}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Min (m)</Label>
+      </div>
+
+      {/* Length & Weight Ranges (Inline Grid) */}
+      <div className="space-y-3 pt-1 border-t border-border/60">
+        {/* Length Row */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Panjang (m)</span>
+            <span className="font-mono text-[11px] text-foreground font-medium">
+              {formatLength(selectedLength[0])} - {formatLength(selectedLength[1])} m
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
             <Input
               type="number"
               min={lengthBounds.min}
               max={lengthBounds.max}
               step={0.1}
               value={lengthDraft.min}
-              onChange={(event) => {
-                setLengthDraft((current) => ({
-                  ...current,
-                  min: event.target.value,
-                }));
-              }}
-              disabled={lengthBounds.min === lengthBounds.max}
-              className="h-9 rounded-full"
+              placeholder="Min"
+              onChange={(e) => setLengthDraft((c) => ({ ...c, min: e.target.value }))}
+              onBlur={applyLengthRange}
+              onKeyDown={(e) => e.key === 'Enter' && applyLengthRange()}
+              className="h-7 text-xs rounded-lg text-center"
             />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Max (m)</Label>
+            <span className="text-muted-foreground text-xs font-mono">-</span>
             <Input
               type="number"
               min={lengthBounds.min}
               max={lengthBounds.max}
               step={0.1}
               value={lengthDraft.max}
-              onChange={(event) => {
-                setLengthDraft((current) => ({
-                  ...current,
-                  max: event.target.value,
-                }));
-              }}
-              disabled={lengthBounds.min === lengthBounds.max}
-              className="h-9 rounded-full"
+              placeholder="Max"
+              onChange={(e) => setLengthDraft((c) => ({ ...c, max: e.target.value }))}
+              onBlur={applyLengthRange}
+              onKeyDown={(e) => e.key === 'Enter' && applyLengthRange()}
+              className="h-7 text-xs rounded-lg text-center"
             />
           </div>
         </div>
-        <button
-          type="button"
-          onClick={applyLengthRange}
-          disabled={lengthBounds.min === lengthBounds.max}
-          className="w-full rounded-full border border-amber-700/30 bg-amber-100/70 px-4 py-2 text-xs font-semibold text-amber-900 transition-colors hover:bg-amber-200/80 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Terapkan Panjang
-        </button>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{formatLength(lengthBounds.min)} m</span>
-          <span>{formatLength(lengthBounds.max)} m</span>
-        </div>
-      </div>
 
-      <div className="border-t border-muted-foreground/10" />
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-foreground">Rentang Berat</h3>
-          <span className="text-xs text-muted-foreground">
-            {formatWeight(selectedWeight[0])} - {formatWeight(selectedWeight[1])} ton
-          </span>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Min (ton)</Label>
+        {/* Weight Row */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Berat (ton)</span>
+            <span className="font-mono text-[11px] text-foreground font-medium">
+              {formatWeight(selectedWeight[0])} - {formatWeight(selectedWeight[1])} ton
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
             <Input
               type="number"
               min={toTons(weightBounds.min)}
               max={toTons(weightBounds.max)}
               step={0.1}
               value={weightDraft.min}
-              onChange={(event) => {
-                setWeightDraft((current) => ({
-                  ...current,
-                  min: event.target.value,
-                }));
-              }}
-              disabled={weightBounds.min === weightBounds.max}
-              className="h-9 rounded-full"
+              placeholder="Min"
+              onChange={(e) => setWeightDraft((c) => ({ ...c, min: e.target.value }))}
+              onBlur={applyWeightRange}
+              onKeyDown={(e) => e.key === 'Enter' && applyWeightRange()}
+              className="h-7 text-xs rounded-lg text-center"
             />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Max (ton)</Label>
+            <span className="text-muted-foreground text-xs font-mono">-</span>
             <Input
               type="number"
               min={toTons(weightBounds.min)}
               max={toTons(weightBounds.max)}
               step={0.1}
               value={weightDraft.max}
-              onChange={(event) => {
-                setWeightDraft((current) => ({
-                  ...current,
-                  max: event.target.value,
-                }));
-              }}
-              disabled={weightBounds.min === weightBounds.max}
-              className="h-9 rounded-full"
+              placeholder="Max"
+              onChange={(e) => setWeightDraft((c) => ({ ...c, max: e.target.value }))}
+              onBlur={applyWeightRange}
+              onKeyDown={(e) => e.key === 'Enter' && applyWeightRange()}
+              className="h-7 text-xs rounded-lg text-center"
             />
           </div>
-        </div>
-        <button
-          type="button"
-          onClick={applyWeightRange}
-          disabled={weightBounds.min === weightBounds.max}
-          className="w-full rounded-full border border-emerald-700/30 bg-emerald-100/70 px-4 py-2 text-xs font-semibold text-emerald-900 transition-colors hover:bg-emerald-200/80 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Terapkan Berat
-        </button>
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{formatWeight(weightBounds.min)} ton</span>
-          <span>{formatWeight(weightBounds.max)} ton</span>
         </div>
       </div>
 
       {hasActiveFilters && (
-        <>
-          <div className="border-t border-muted-foreground/10" />
-          <button
-            onClick={onReset}
-            className="w-full rounded-full border border-amber-700/30 bg-amber-100/70 px-4 py-2 text-sm font-semibold text-amber-900 transition-colors hover:bg-amber-200/80"
-          >
-            Reset Filter
-          </button>
-        </>
+        <button
+          type="button"
+          onClick={onReset}
+          className="w-full rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 py-1.5 text-xs font-semibold text-primary transition-colors mt-1"
+        >
+          Reset Filter
+        </button>
       )}
     </Container>
   );
