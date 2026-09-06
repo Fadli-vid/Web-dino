@@ -69,13 +69,13 @@ export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
 
           <div className="pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground font-medium">
             <div className="flex items-center gap-1">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">Panjang</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">Length</span>
               <span className="font-semibold text-foreground">{dinosaur.length} m</span>
             </div>
             <div className="h-3 w-px bg-border/80" />
             <div className="flex items-center gap-1">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">Berat</span>
-              <span className="font-semibold text-foreground">{(dinosaur.weight / 1000).toFixed(1)} ton</span>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">Weight</span>
+              <span className="font-semibold text-foreground">{(dinosaur.weight / 1000).toFixed(1)} tons</span>
             </div>
           </div>
         </div>

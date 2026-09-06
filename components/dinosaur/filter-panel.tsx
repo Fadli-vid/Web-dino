@@ -117,7 +117,7 @@ export function FilterPanel({
       <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="w-4 h-4 text-primary" />
-          <h2 className="font-semibold text-sm text-foreground">Filter Ekspedisi</h2>
+          <h2 className="font-semibold text-sm text-foreground">Expedition Filters</h2>
         </div>
         {hasActiveFilters && (
           <button
@@ -134,7 +134,7 @@ export function FilterPanel({
       {/* Period Filter (Compact Chips) */}
       <div className="space-y-2">
         <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          Era / Periode
+          Era / Period
         </span>
         <div className="grid grid-cols-3 gap-1.5">
           {periods.map((period) => {
@@ -162,7 +162,7 @@ export function FilterPanel({
       {/* Diet Filter (Compact Chips) */}
       <div className="space-y-2">
         <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-          Pola Makan
+          Diet
         </span>
         <div className="grid grid-cols-3 gap-1.5">
           {diets.map((diet) => {
@@ -191,7 +191,7 @@ export function FilterPanel({
         {/* Length Row */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Panjang (m)</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Length (m)</span>
             <span className="font-mono text-[11px] text-foreground font-medium">
               {formatLength(selectedLength[0])} - {formatLength(selectedLength[1])} m
             </span>
@@ -228,9 +228,9 @@ export function FilterPanel({
         {/* Weight Row */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Berat (ton)</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Weight (tons)</span>
             <span className="font-mono text-[11px] text-foreground font-medium">
-              {formatWeight(selectedWeight[0])} - {formatWeight(selectedWeight[1])} ton
+              {formatWeight(selectedWeight[0])} - {formatWeight(selectedWeight[1])} tons
             </span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -269,7 +269,7 @@ export function FilterPanel({
           onClick={onReset}
           className="w-full rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 py-1.5 text-xs font-semibold text-primary transition-colors mt-1"
         >
-          Reset Filter
+          Reset Filters
         </button>
       )}
     </Container>
