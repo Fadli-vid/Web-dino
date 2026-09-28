@@ -47,7 +47,7 @@ export function SpecimenToolbar({
         <span className="font-semibold text-foreground">{totalFiltered}</span>
         <span>species</span>
         {activeFiltersCount > 0 && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+          <span className="text-xs px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
             {activeFiltersCount} active {activeFiltersCount === 1 ? 'filter' : 'filters'}
           </span>
         )}

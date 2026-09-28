@@ -43,7 +43,7 @@ export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
           
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 pointer-events-none">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium border backdrop-blur-md ${periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'}`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-medium border backdrop-blur-md ${periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'}`}>
               {dinosaur.period}
             </span>
           </div>
@@ -55,7 +55,7 @@ export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
               <h3 className="font-[var(--font-display)] text-xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-1">
                 {dinosaur.name}
               </h3>
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${dietStyles[dinosaur.diet] || 'border-border bg-muted text-foreground'}`}>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border ${dietStyles[dinosaur.diet] || 'border-border bg-muted text-foreground'}`}>
                 {dinosaur.diet}
               </span>
             </div>

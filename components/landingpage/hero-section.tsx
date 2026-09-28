@@ -21,11 +21,6 @@ export function HeroSection({
         <div className="grid items-center gap-10 lg:grid-cols-12">
           {/* Left Content */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-medium text-primary">
-              <Sparkles className="w-3.5 h-3.5" />
-              MESOZOIC FOSSIL ARCHIVE
-            </div>
-
             <h1 className="font-[var(--font-display)] text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
               Explore Prehistoric Fossils & Ancient Fauna
             </h1>
