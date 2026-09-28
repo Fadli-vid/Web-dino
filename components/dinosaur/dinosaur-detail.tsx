@@ -118,14 +118,14 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
               {/* Top Period & Diet Badges */}
               <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-md ${
+                  className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${
                     periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'
                   }`}
                 >
                   {dinosaur.period}
                 </span>
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-md ${
+                  className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${
                     dietStyles[dinosaur.diet] || 'border-border bg-muted text-foreground'
                   }`}
                 >
@@ -156,10 +156,6 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         {/* Right Column: Specimen Title & Biometric Matrix */}
         <div className="lg:col-span-6 space-y-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-0.5 text-xs font-medium text-primary">
-              <Sparkles className="w-3 h-3" />
-              MESOZOIC PALEONTOLOGY DOSSIER
-            </div>
             <h1 className="font-[var(--font-display)] text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
               {dinosaur.name}
             </h1>
@@ -374,15 +370,15 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         ) : (
           <div className="w-full py-10 px-4 bg-muted/20 rounded-xl border border-border/60 flex flex-col items-center justify-center">
             <div className="flex flex-col items-center space-y-3">
-              <div className="px-4 py-1.5 rounded-full border border-border/80 bg-card text-xs font-mono text-muted-foreground shadow-xs">
+              <div className="px-4 py-1.5 rounded-md border border-border/80 bg-card text-xs font-mono text-muted-foreground shadow-xs">
                 Clade: Dinosauria
               </div>
               <div className="w-px h-5 bg-border" />
-              <div className="px-4 py-1.5 rounded-full border border-border/80 bg-card text-xs font-mono text-muted-foreground shadow-xs">
+              <div className="px-4 py-1.5 rounded-md border border-border/80 bg-card text-xs font-mono text-muted-foreground shadow-xs">
                 Order: {dinosaur.taxonomy?.order || 'Unknown Order'}
               </div>
               <div className="w-px h-5 bg-border" />
-              <div className="px-4 py-1.5 rounded-full border border-border/80 bg-card text-xs font-mono text-muted-foreground shadow-xs">
+              <div className="px-4 py-1.5 rounded-md border border-border/80 bg-card text-xs font-mono text-muted-foreground shadow-xs">
                 Family: {dinosaur.taxonomy?.family || 'Theropoda'}
               </div>
               <div className="w-px h-5 bg-border" />

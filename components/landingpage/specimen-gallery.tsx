@@ -131,11 +131,12 @@ export function SpecimenGallery({
             className="rounded-2xl border border-border/80 bg-card/75 backdrop-blur-md p-4 transition-all hover:border-primary/40 hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
           >
             <div className="flex items-center gap-4 flex-1">
-              <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-muted/40 shrink-0 border border-border/60">
+              <div className="relative w-24 h-16 aspect-[3/2] rounded-xl overflow-hidden bg-muted/40 shrink-0 border border-border/60">
                 <Image
                   src={dinosaur.image}
                   alt={dinosaur.imageAlt || dinosaur.name}
                   fill
+                  sizes="96px"
                   className="object-cover"
                 />
               </div>

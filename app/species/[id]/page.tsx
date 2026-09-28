@@ -53,7 +53,7 @@ export default async function SpeciesPage({ params }: SpeciesPageProps) {
           </Link>
 
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full border border-border/60 bg-muted/40 text-xs font-mono text-muted-foreground">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-md border border-border/60 bg-muted/40 text-xs font-mono text-muted-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               <span>Dossier: #{dinosaur.id.toUpperCase()}</span>
             </div>
