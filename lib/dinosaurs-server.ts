@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { Dinosaur } from './types';
 import { dbPool } from './tidb';
 import { RowDataPacket } from 'mysql2';
@@ -28,7 +29,12 @@ function mapRowToDinosaur(dino: any): Dinosaur {
   };
 }
 
-export async function getDinosaurByIdServer(id: string): Promise<Dinosaur | null> {
+/**
+ * Deduplicated server-side query for a single dinosaur specimen by ID.
+ * Wrapped with React cache() to prevent duplicate round-trips to TiDB Cloud
+ * between generateMetadata and Page components.
+ */
+export const getDinosaurByIdServer = cache(async (id: string): Promise<Dinosaur | null> => {
   try {
     const [rows] = await dbPool.query<RowDataPacket[]>(
       'SELECT * FROM dinosaurs WHERE id = ? LIMIT 1',
@@ -40,9 +46,12 @@ export async function getDinosaurByIdServer(id: string): Promise<Dinosaur | null
     console.error('Error fetching dinosaur by ID from TiDB database:', error);
     return null;
   }
-}
+});
 
-export async function getDinosaursServer(): Promise<Dinosaur[]> {
+/**
+ * Deduplicated server-side query for the complete dinosaur catalog.
+ */
+export const getDinosaursServer = cache(async (): Promise<Dinosaur[]> => {
   try {
     const [rows] = await dbPool.query<RowDataPacket[]>('SELECT * FROM dinosaurs ORDER BY name ASC');
     return rows.map(mapRowToDinosaur);
@@ -50,4 +59,4 @@ export async function getDinosaursServer(): Promise<Dinosaur[]> {
     console.error('Error fetching dinosaurs from TiDB database:', error);
     return [];
   }
-}
+});

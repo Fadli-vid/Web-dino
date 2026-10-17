@@ -30,21 +30,6 @@ export function LandingHeader({ totalSpecies }: LandingHeaderProps) {
             </span>
           </div>
         </Link>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-md border border-border/60 bg-muted/40 text-xs font-mono text-muted-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>{totalSpecies} Documented Specimens</span>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-xl border-border/80 text-xs"
-            onClick={handleScrollToLedger}
-          >
-            Explore Archive
-          </Button>
-        </div>
       </div>
     </header>
   );

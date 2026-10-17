@@ -6,6 +6,7 @@ import { SearchX } from 'lucide-react';
 import { Dinosaur } from '@/lib/types';
 import { DinosaurCard } from '@/components/dinosaur/dinosaur-card';
 import { Button } from '@/components/ui/button';
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import {
   Empty,
   EmptyContent,
@@ -133,7 +134,7 @@ export function SpecimenGallery({
             <div className="flex items-center gap-4 flex-1">
               <div className="relative w-24 h-16 aspect-[3/2] rounded-xl overflow-hidden bg-muted/40 shrink-0 border border-border/60">
                 <Image
-                  src={dinosaur.image}
+                  src={getOptimizedImageUrl(dinosaur.image, { width: 300, quality: 'auto:good' })}
                   alt={dinosaur.imageAlt || dinosaur.name}
                   fill
                   sizes="96px"

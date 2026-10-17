@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Dinosaur } from '@/lib/types';
 import Image from 'next/image';
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 
 interface DinosaurCardProps {
   dinosaur: Dinosaur;
@@ -23,6 +24,11 @@ const periodStyles: Record<string, string> = {
 };
 
 export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
+  const cardImage = getOptimizedImageUrl(dinosaur.image, {
+    width: 800,
+    quality: 'auto:good',
+  });
+
   return (
     <Link
       href={`/species/${dinosaur.id}`}
@@ -34,7 +40,7 @@ export function DinosaurCard({ dinosaur }: DinosaurCardProps) {
           style={{ aspectRatio: '4 / 3' }}
         >
           <Image
-            src={dinosaur.image}
+            src={cardImage}
             alt={dinosaur.imageAlt || dinosaur.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
