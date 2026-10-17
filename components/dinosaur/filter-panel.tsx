@@ -24,10 +24,10 @@ const periods = ['Triassic', 'Jurassic', 'Cretaceous'];
 const diets = ['Carnivore', 'Herbivore', 'Omnivore'];
 
 export function FilterPanel({
-  selectedPeriods,
-  selectedDiets,
-  lengthBounds,
-  weightBounds,
+  selectedPeriods = [],
+  selectedDiets = [],
+  lengthBounds = { min: 0, max: 0 },
+  weightBounds = { min: 0, max: 0 },
   selectedLength,
   selectedWeight,
   onLengthChange,
@@ -37,12 +37,22 @@ export function FilterPanel({
   onReset,
   variant = 'card',
 }: FilterPanelProps) {
+  const safeLength: [number, number] =
+    Array.isArray(selectedLength) && selectedLength.length === 2
+      ? selectedLength
+      : [lengthBounds?.min ?? 0, lengthBounds?.max ?? 0];
+
+  const safeWeight: [number, number] =
+    Array.isArray(selectedWeight) && selectedWeight.length === 2
+      ? selectedWeight
+      : [weightBounds?.min ?? 0, weightBounds?.max ?? 0];
+
   const lengthActive =
     lengthBounds.min !== lengthBounds.max &&
-    (selectedLength[0] > lengthBounds.min || selectedLength[1] < lengthBounds.max);
+    (safeLength[0] > lengthBounds.min || safeLength[1] < lengthBounds.max);
   const weightActive =
     weightBounds.min !== weightBounds.max &&
-    (selectedWeight[0] > weightBounds.min || selectedWeight[1] < weightBounds.max);
+    (safeWeight[0] > weightBounds.min || safeWeight[1] < weightBounds.max);
   const hasActiveFilters =
     selectedPeriods.length > 0 || selectedDiets.length > 0 || lengthActive || weightActive;
 
@@ -59,27 +69,27 @@ export function FilterPanel({
   const toTons = (value: number) => Math.round((value / 1000) * 10) / 10;
 
   const [lengthDraft, setLengthDraft] = useState({
-    min: formatLength(selectedLength[0]),
-    max: formatLength(selectedLength[1]),
+    min: formatLength(safeLength[0]),
+    max: formatLength(safeLength[1]),
   });
   const [weightDraft, setWeightDraft] = useState({
-    min: formatWeight(selectedWeight[0]),
-    max: formatWeight(selectedWeight[1]),
+    min: formatWeight(safeWeight[0]),
+    max: formatWeight(safeWeight[1]),
   });
 
   useEffect(() => {
     setLengthDraft({
-      min: formatLength(selectedLength[0]),
-      max: formatLength(selectedLength[1]),
+      min: formatLength(safeLength[0]),
+      max: formatLength(safeLength[1]),
     });
-  }, [selectedLength]);
+  }, [safeLength[0], safeLength[1]]);
 
   useEffect(() => {
     setWeightDraft({
-      min: formatWeight(selectedWeight[0]),
-      max: formatWeight(selectedWeight[1]),
+      min: formatWeight(safeWeight[0]),
+      max: formatWeight(safeWeight[1]),
     });
-  }, [selectedWeight]);
+  }, [safeWeight[0], safeWeight[1]]);
 
   const clampValue = (value: number, min: number, max: number) => {
     return Math.min(Math.max(value, min), max);

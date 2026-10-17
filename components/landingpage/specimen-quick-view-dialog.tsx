@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Dinosaur } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import {
   Dialog,
   DialogClose,
@@ -34,7 +35,7 @@ export function SpecimenQuickViewDialog({
           <div className="grid gap-6 sm:grid-cols-[1.1fr_1fr]">
             <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-border/60 bg-muted/40">
               <Image
-                src={dinosaur.image}
+                src={getOptimizedImageUrl(dinosaur.image, { width: 900, quality: 'auto:good' })}
                 alt={dinosaur.imageAlt || dinosaur.name}
                 fill
                 className="object-cover"

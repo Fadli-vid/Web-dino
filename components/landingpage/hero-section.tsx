@@ -3,6 +3,12 @@
 import { useRef, useState } from 'react';
 import { Play, Pause, Film } from 'lucide-react';
 import { SearchBar } from '@/components/dinosaur/search-bar';
+import { getOptimizedVideoUrl } from '@/lib/cloudinary';
+
+const HERO_VIDEO_SRC = getOptimizedVideoUrl(
+  'https://res.cloudinary.com/dhx7maf56/video/upload/v1792228140/gemini_generated_video_bd55a90e_mqdlrq.mp4',
+  { width: 1920, quality: 'auto:good', audioCodec: 'none' }
+);
 
 interface HeroSectionProps {
   totalSpecies: number;
@@ -39,11 +45,14 @@ export function HeroSection({
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           poster="/hero-specimen.jpg"
           className="w-full h-full object-cover scale-[1.01] transition-transform duration-700"
         >
-          <source src="/asset/loop-dino.webm" type="video/webm" />
+          <source
+            src={HERO_VIDEO_SRC}
+            type="video/mp4"
+          />
         </video>
 
         {/* Ambient Gradient Overlays for Seamless Theme Integration & Text Contrast */}
@@ -53,7 +62,7 @@ export function HeroSection({
         {/* Top subtle seam blend from header */}
         <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-background/40 to-transparent pointer-events-none" />
 
-        {/* Bottom smooth blend into geological strata bar */}
+        {/* Bottom smooth blend into specimen ledger */}
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/80 via-background/20 to-transparent pointer-events-none" />
 
         {/* Subtle radial warmth / museum lighting accent focused on the left */}

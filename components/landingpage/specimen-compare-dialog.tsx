@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Scale } from 'lucide-react';
 import { Dinosaur } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import {
   Dialog,
   DialogContent,
@@ -58,7 +59,12 @@ export function SpecimenCompareDialog({
                 {compareDinosaurs.map((dino) => (
                   <td key={`img-${dino.id}`} className="py-2.5 px-3">
                     <div className="relative w-20 h-14 rounded-lg overflow-hidden border border-border/60 bg-muted/40">
-                      <Image src={dino.image} alt={dino.name} fill className="object-cover" />
+                      <Image
+                        src={getOptimizedImageUrl(dino.image, { width: 300, quality: 'auto:good' })}
+                        alt={dino.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   </td>
                 ))}

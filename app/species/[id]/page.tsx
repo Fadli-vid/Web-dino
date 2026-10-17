@@ -1,5 +1,5 @@
 import { DinosaurDetail } from '@/components/dinosaur/dinosaur-detail';
-import { getDinosaurByIdServer } from '@/lib/dinosaurs-server';
+import { getDinosaurByIdServer, getDinosaursServer } from '@/lib/dinosaurs-server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Compass, ArrowLeft } from 'lucide-react';
@@ -7,6 +7,19 @@ import { Button } from '@/components/ui/button';
 
 interface SpeciesPageProps {
   params: Promise<{ id: string }>;
+}
+
+// Revalidate cached species page once every 24 hours
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  try {
+    const dinosaurs = await getDinosaursServer();
+    return dinosaurs.map((dino) => ({ id: dino.id }));
+  } catch (error) {
+    console.error('Failed to generate static params for species:', error);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: SpeciesPageProps) {

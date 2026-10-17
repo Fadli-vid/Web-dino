@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dinosaur } from '@/lib/types';
 import Image from 'next/image';
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import {
   ArrowLeft,
   BookOpen,
@@ -106,7 +107,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
           <Card className="overflow-hidden border border-border/80 bg-card/75 backdrop-blur-md rounded-2xl shadow-lg relative group">
             <div className="relative w-full aspect-[4/3] bg-muted/40 overflow-hidden">
               <Image
-                src={dinosaur.image}
+                src={getOptimizedImageUrl(dinosaur.image, { width: 1400, quality: 'auto:good' })}
                 alt={dinosaur.imageAlt || dinosaur.name}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -250,7 +251,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         {dinosaur.sizeComparisonUrl ? (
           <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border/60 bg-muted/30 flex items-center justify-center">
             <Image
-              src={dinosaur.sizeComparisonUrl}
+              src={getOptimizedImageUrl(dinosaur.sizeComparisonUrl, { width: 1600, quality: 'auto:good' })}
               alt={`Scale comparison of ${dinosaur.name}`}
               fill
               sizes="(max-width: 1024px) 100vw, 1200px"
