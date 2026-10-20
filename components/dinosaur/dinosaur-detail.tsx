@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Dinosaur } from '@/lib/types';
 import Image from 'next/image';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
+import { ImageLightbox } from './image-lightbox';
 import {
   ArrowLeft,
   BookOpen,
@@ -22,6 +23,7 @@ import {
   Calendar,
   Sparkles,
   Layers,
+  Maximize2,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -43,6 +45,40 @@ const periodStyles: Record<string, string> = {
 
 export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
   const [copied, setCopied] = useState(false);
+  const [lightboxData, setLightboxData] = useState<{
+    isOpen: boolean;
+    imageUrl: string | null;
+    imageAlt: string;
+    title: string;
+    subtitle?: string;
+    categoryBadge?: string;
+  }>({
+    isOpen: false,
+    imageUrl: null,
+    imageAlt: '',
+    title: '',
+  });
+
+  const openLightbox = (
+    imageUrl: string,
+    imageAlt: string,
+    title: string,
+    subtitle?: string,
+    categoryBadge?: string
+  ) => {
+    setLightboxData({
+      isOpen: true,
+      imageUrl,
+      imageAlt,
+      title,
+      subtitle,
+      categoryBadge,
+    });
+  };
+
+  const closeLightbox = () => {
+    setLightboxData((prev) => ({ ...prev, isOpen: false }));
+  };
 
   const handleShare = () => {
     if (typeof window !== 'undefined') {
@@ -105,7 +141,33 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         {/* Left Column: Specimen Photograph & Catalog Plaque */}
         <div className="lg:col-span-6 space-y-4">
           <Card className="overflow-hidden border border-border/80 bg-card/75 backdrop-blur-md rounded-2xl shadow-lg relative group">
-            <div className="relative w-full aspect-[4/3] bg-muted/40 overflow-hidden">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label={`View ${dinosaur.name} specimen photograph in full screen`}
+              onClick={() =>
+                openLightbox(
+                  dinosaur.image,
+                  dinosaur.imageAlt || dinosaur.name,
+                  dinosaur.name,
+                  `${dinosaur.scientificName} · Specimen Reconstruction`,
+                  'SPECIMEN DOSSIER'
+                )
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openLightbox(
+                    dinosaur.image,
+                    dinosaur.imageAlt || dinosaur.name,
+                    dinosaur.name,
+                    `${dinosaur.scientificName} · Specimen Reconstruction`,
+                    'SPECIMEN DOSSIER'
+                  );
+                }
+              }}
+              className="relative w-full aspect-[4/3] bg-muted/40 overflow-hidden cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+            >
               <Image
                 src={getOptimizedImageUrl(dinosaur.image, { width: 1400, quality: 'auto:good' })}
                 alt={dinosaur.imageAlt || dinosaur.name}
@@ -117,7 +179,7 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
 
               {/* Top Period & Diet Badges */}
-              <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none">
+              <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none z-10">
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${
                     periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'
@@ -134,8 +196,14 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
                 </span>
               </div>
 
+              {/* Fullscreen Expand Action Badge */}
+              <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black/60 hover:bg-black/85 backdrop-blur-md text-white text-xs border border-white/20 transition-all opacity-85 group-hover:opacity-100 group-hover:scale-105 shadow-md pointer-events-none">
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span className="font-mono text-[11px] hidden sm:inline">Fullscreen</span>
+              </div>
+
               {/* Bottom Catalog Plaque */}
-              <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-xl bg-background/90 backdrop-blur-md border border-border/80 flex items-center justify-between gap-3 shadow-md">
+              <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-xl bg-background/90 backdrop-blur-md border border-border/80 flex items-center justify-between gap-3 shadow-md z-10">
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-widest text-primary font-semibold">
                     Catalog Record
@@ -249,14 +317,45 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         </div>
 
         {dinosaur.sizeComparisonUrl ? (
-          <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border/60 bg-muted/30 flex items-center justify-center">
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={`View biometric scale comparison of ${dinosaur.name} in full screen`}
+            onClick={() =>
+              openLightbox(
+                dinosaur.sizeComparisonUrl!,
+                `Scale comparison of ${dinosaur.name}`,
+                `${dinosaur.name} - Biometric Scale Comparison`,
+                `Scale Index: ${scaleRatio}x adult human height (1.8m)`,
+                'BIOMETRIC MATRIX'
+              )
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openLightbox(
+                  dinosaur.sizeComparisonUrl!,
+                  `Scale comparison of ${dinosaur.name}`,
+                  `${dinosaur.name} - Biometric Scale Comparison`,
+                  `Scale Index: ${scaleRatio}x adult human height (1.8m)`,
+                  'BIOMETRIC MATRIX'
+                );
+              }
+            }}
+            className="group relative w-full aspect-video rounded-xl overflow-hidden border border-border/60 bg-muted/30 flex items-center justify-center cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
             <Image
               src={getOptimizedImageUrl(dinosaur.sizeComparisonUrl, { width: 1600, quality: 'auto:good' })}
               alt={`Scale comparison of ${dinosaur.name}`}
               fill
               sizes="(max-width: 1024px) 100vw, 1200px"
-              className="object-contain"
+              className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
             />
+            {/* Fullscreen Expand Action Badge */}
+            <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black/60 hover:bg-black/85 backdrop-blur-md text-white text-xs border border-white/20 transition-all opacity-85 group-hover:opacity-100 group-hover:scale-105 shadow-md pointer-events-none">
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="font-mono text-[11px] hidden sm:inline">Fullscreen Scale</span>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center p-6 sm:p-10 bg-muted/25 rounded-xl border border-border/60 aspect-video min-h-[260px]">
@@ -360,13 +459,43 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         </div>
 
         {dinosaur.evolutionaryTreeUrl ? (
-          <div className="relative w-full h-[300px] sm:h-[400px] rounded-xl overflow-hidden border border-border/60 bg-muted/30">
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={`View evolutionary tree diagram for ${dinosaur.name} in full screen`}
+            onClick={() =>
+              openLightbox(
+                dinosaur.evolutionaryTreeUrl!,
+                `Evolutionary tree for ${dinosaur.name}`,
+                `${dinosaur.name} - Phylogenetic Evolutionary Tree`,
+                `Taxonomy: ${dinosaur.taxonomy?.family || 'Dinosauria'} · ${dinosaur.period}`,
+                'PHYLOGENETIC TREE'
+              )
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openLightbox(
+                  dinosaur.evolutionaryTreeUrl!,
+                  `Evolutionary tree for ${dinosaur.name}`,
+                  `${dinosaur.name} - Phylogenetic Evolutionary Tree`,
+                  `Taxonomy: ${dinosaur.taxonomy?.family || 'Dinosauria'} · ${dinosaur.period}`,
+                  'PHYLOGENETIC TREE'
+                );
+              }
+            }}
+            className="group relative w-full h-[300px] sm:h-[400px] rounded-xl overflow-hidden border border-border/60 bg-muted/30 cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary flex items-center justify-center"
+          >
             <Image
-              src={dinosaur.evolutionaryTreeUrl}
+              src={getOptimizedImageUrl(dinosaur.evolutionaryTreeUrl, { width: 1600, quality: 'auto:good' })}
               alt={`Evolutionary tree for ${dinosaur.name}`}
               fill
-              className="object-contain"
+              className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.02]"
             />
+            <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black/60 hover:bg-black/85 backdrop-blur-md text-white text-xs border border-white/20 transition-all opacity-85 group-hover:opacity-100 group-hover:scale-105 shadow-md pointer-events-none">
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="font-mono text-[11px] hidden sm:inline">Fullscreen Diagram</span>
+            </div>
           </div>
         ) : (
           <div className="w-full py-10 px-4 bg-muted/20 rounded-xl border border-border/60 flex flex-col items-center justify-center">
@@ -433,13 +562,44 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
         </div>
 
         {dinosaur.habitatMapUrl ? (
-          <div className="relative w-full h-[280px] sm:h-[360px] rounded-xl overflow-hidden border border-border/60 bg-muted/30">
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label={`View habitat map for ${dinosaur.name} in full screen`}
+            onClick={() =>
+              openLightbox(
+                dinosaur.habitatMapUrl!,
+                `Habitat map for ${dinosaur.name}`,
+                `${dinosaur.name} - Excavation & Habitat Map`,
+                `Location: ${dinosaur.locationFound || 'Global Archive'} · ${dinosaur.period}`,
+                'FIELD HABITAT MAP'
+              )
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openLightbox(
+                  dinosaur.habitatMapUrl!,
+                  `Habitat map for ${dinosaur.name}`,
+                  `${dinosaur.name} - Excavation & Habitat Map`,
+                  `Location: ${dinosaur.locationFound || 'Global Archive'} · ${dinosaur.period}`,
+                  'FIELD HABITAT MAP'
+                );
+              }
+            }}
+            className="group relative w-full h-[280px] sm:h-[360px] rounded-xl overflow-hidden border border-border/60 bg-muted/30 cursor-zoom-in outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
             <Image
-              src={dinosaur.habitatMapUrl}
+              src={getOptimizedImageUrl(dinosaur.habitatMapUrl, { width: 1600, quality: 'auto:good' })}
               alt={`Habitat map for ${dinosaur.name}`}
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
+            {/* Fullscreen Expand Action Badge */}
+            <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black/60 hover:bg-black/85 backdrop-blur-md text-white text-xs border border-white/20 transition-all opacity-85 group-hover:opacity-100 group-hover:scale-105 shadow-md pointer-events-none">
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span className="font-mono text-[11px] hidden sm:inline">Fullscreen Map</span>
+            </div>
           </div>
         ) : (
           <div className="rounded-xl border border-border/60 bg-muted/20 p-6 flex flex-col items-center justify-center text-center space-y-2">
@@ -455,6 +615,17 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
           </div>
         )}
       </Card>
+
+      {/* Fullscreen Lightbox Modal */}
+      <ImageLightbox
+        isOpen={lightboxData.isOpen}
+        onClose={closeLightbox}
+        imageUrl={lightboxData.imageUrl}
+        imageAlt={lightboxData.imageAlt}
+        title={lightboxData.title}
+        subtitle={lightboxData.subtitle}
+        categoryBadge={lightboxData.categoryBadge}
+      />
     </div>
   );
 }
