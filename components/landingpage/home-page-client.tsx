@@ -178,6 +178,36 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
         initialSearch={searchQuery}
       />
 
+      {/* 3-Card Specimen Strip - Tepat di luar/di bawah hero, ukuran full horizontal */}
+      <section className="w-full border-b border-border/60 bg-card/60 backdrop-blur-xs">
+        <div className="w-full grid grid-cols-3 divide-x divide-border/60">
+          <div className="px-4 sm:px-8 lg:px-12 py-4 sm:py-5 flex flex-col justify-center">
+            <div className="text-[10px] sm:text-xs uppercase font-mono tracking-wider text-muted-foreground">
+              Fossil Collection
+            </div>
+            <div className="text-base sm:text-xl lg:text-2xl font-bold tracking-tight text-foreground mt-0.5">
+              {totalSpecies} Species
+            </div>
+          </div>
+          <div className="px-4 sm:px-8 lg:px-12 py-4 sm:py-5 flex flex-col justify-center">
+            <div className="text-[10px] sm:text-xs uppercase font-mono tracking-wider text-muted-foreground">
+              Temporal Range
+            </div>
+            <div className="text-base sm:text-xl lg:text-2xl font-bold tracking-tight text-foreground mt-0.5">
+              3 Eras
+            </div>
+          </div>
+          <div className="px-4 sm:px-8 lg:px-12 py-4 sm:py-5 flex flex-col justify-center">
+            <div className="text-[10px] sm:text-xs uppercase font-mono tracking-wider text-muted-foreground">
+              Classification
+            </div>
+            <div className="text-base sm:text-xl lg:text-2xl font-bold tracking-tight text-foreground mt-0.5">
+              Full Taxonomy
+            </div>
+          </div>
+        </div>
+      </section>
+
       <main
         id="specimen-ledger"
         className="max-w-7xl mx-auto px-4 sm:px-6 py-10 lg:py-14 flex-1 w-full"

@@ -11,13 +11,12 @@ const HERO_VIDEO_SRC = getOptimizedVideoUrl(
 );
 
 interface HeroSectionProps {
-  totalSpecies: number;
   onSearch: (query: string) => void;
   initialSearch?: string;
+  totalSpecies?: number;
 }
 
 export function HeroSection({
-  totalSpecies,
   onSearch,
   initialSearch = '',
 }: HeroSectionProps) {
@@ -91,33 +90,6 @@ export function HeroSection({
                 placeholder="Search specimens, eras, diet..."
                 debounceMs={1500}
               />
-            </div>
-
-            {/* Mobile: Unified Sleek Glassmorphic Pill Strip */}
-            <div className="sm:hidden pt-1">
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl border border-border/80 bg-card/85 backdrop-blur-md shadow-xs text-xs font-mono">
-                <span className="font-semibold text-foreground">{totalSpecies} Species</span>
-                <span className="text-border/80">·</span>
-                <span className="text-muted-foreground">3 Eras</span>
-                <span className="text-border/80">·</span>
-                <span className="text-muted-foreground">Full Taxonomy</span>
-              </div>
-            </div>
-
-            {/* Tablet & Desktop: 3-Card Specimen Counter Strip */}
-            <div className="hidden sm:grid pt-2 grid-cols-3 gap-3 max-w-lg">
-              <div className="rounded-xl border border-border/80 bg-card/80 backdrop-blur-md p-3 shadow-xs">
-                <div className="text-[10px] uppercase font-mono text-muted-foreground">Fossil Collection</div>
-                <div className="text-xl font-bold text-foreground mt-0.5">{totalSpecies} Species</div>
-              </div>
-              <div className="rounded-xl border border-border/80 bg-card/80 backdrop-blur-md p-3 shadow-xs">
-                <div className="text-[10px] uppercase font-mono text-muted-foreground">Temporal Range</div>
-                <div className="text-xl font-bold text-foreground mt-0.5">3 Eras</div>
-              </div>
-              <div className="rounded-xl border border-border/80 bg-card/80 backdrop-blur-md p-3 shadow-xs">
-                <div className="text-[10px] uppercase font-mono text-muted-foreground">Classification</div>
-                <div className="text-xl font-bold text-foreground mt-0.5">Full Taxonomy</div>
-              </div>
             </div>
           </div>
         </div>
