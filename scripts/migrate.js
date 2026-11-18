@@ -61,7 +61,7 @@ function safeJson(str, isArray = false) {
   try {
     const parsed = JSON.parse(trimmed);
     return JSON.stringify(parsed);
-  } catch (e) {
+  } catch {
     return isArray ? '[]' : '{}';
   }
 }
