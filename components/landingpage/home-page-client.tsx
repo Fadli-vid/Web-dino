@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import { getDinosaurs } from '@/lib/dinosaurs-data';
 import { Dinosaur } from '@/lib/types';
 import { FilterPanel } from '@/components/dinosaur/filter-panel';
-import { useDinosaurFilters } from '@/hooks/use-dinosaur-filters';
+import { useDinosaurFilters, MESOZOIC_MAX_MA, MESOZOIC_MIN_MA } from '@/hooks/use-dinosaur-filters';
 import { useFilterNavigation } from '@/hooks/use-filter-navigation';
+import { useFieldNotebook } from '@/hooks/use-field-notebook';
 import {
   LandingHeader,
   HeroSection,
@@ -20,6 +23,14 @@ import {
 
 const PAGE_SIZE = 12;
 
+const PaleoAnalyticsDialog = dynamic(
+  () =>
+    import('@/components/analytics/paleo-analytics-dialog').then(
+      (mod) => mod.PaleoAnalyticsDialog
+    ),
+  { ssr: false }
+);
+
 interface HomePageClientProps {
   initialDinosaurs?: Dinosaur[];
 }
@@ -32,6 +43,50 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [quickViewId, setQuickViewId] = useState<string | null>(null);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const { seedSummaries } = useFieldNotebook();
+
+  useEffect(() => {
+    if (searchParams.get('analytics') === '1') {
+      setIsAnalyticsOpen(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const handleOpenAnalytics = () => setIsAnalyticsOpen(true);
+    window.addEventListener('wikidino:open-analytics', handleOpenAnalytics);
+    return () => window.removeEventListener('wikidino:open-analytics', handleOpenAnalytics);
+  }, []);
+
+  // Seed lightweight catalog summaries into global Command Palette & Notebook context
+  useEffect(() => {
+    if (dinosaurs.length > 0) {
+      seedSummaries(
+        dinosaurs.map((d) => ({
+          id: d.id,
+          name: d.name,
+          scientificName: d.scientificName,
+          period: d.period,
+          subPeriod: d.subPeriod,
+          myaStart: d.myaStart,
+          myaEnd: d.myaEnd,
+          length: d.length,
+          weight: d.weight,
+          diet: d.diet,
+          locomotion: d.locomotion,
+          continent: d.continent,
+          locationFound: d.locationFound,
+          image: d.image,
+          taxonomy: {
+            order: d.taxonomy?.order || '',
+            family: d.taxonomy?.family || '',
+            genus: d.taxonomy?.genus || '',
+          },
+        }))
+      );
+    }
+  }, [dinosaurs, seedSummaries]);
 
   // Resilient fallback: fetch client-side if initial server payload was empty
   useEffect(() => {
@@ -53,6 +108,8 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
     lengthMax,
     weightMin,
     weightMax,
+    myaMin,
+    myaMax,
   } = useDinosaurFilters(dinosaurs);
 
   const {
@@ -62,10 +119,21 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
     clearFilters,
     setLengthRange,
     setWeightRange,
+    setMyaRange,
   } = useFilterNavigation();
 
   const totalSpecies = dinosaurs.length;
-  const activeFiltersCount = selectedPeriods.length + selectedDiets.length;
+  const hasMyaFilter =
+    (myaMin !== null && myaMin > MESOZOIC_MIN_MA) ||
+    (myaMax !== null && myaMax < MESOZOIC_MAX_MA);
+  const hasLengthFilter = lengthMin !== null || lengthMax !== null;
+  const hasWeightFilter = weightMin !== null || weightMax !== null;
+  const activeFiltersCount =
+    selectedPeriods.length +
+    selectedDiets.length +
+    (hasMyaFilter ? 1 : 0) +
+    (hasLengthFilter ? 1 : 0) +
+    (hasWeightFilter ? 1 : 0);
 
   const lengthBounds = useMemo(() => {
     const values = dinosaurs.map((dino) => dino.length).filter(Number.isFinite);
@@ -122,7 +190,7 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, selectedPeriods, selectedDiets, lengthMin, lengthMax, weightMin, weightMax]);
+  }, [searchQuery, selectedPeriods, selectedDiets, lengthMin, lengthMax, weightMin, weightMax, myaMin, myaMax]);
 
   const totalFiltered = sortedDinosaurs.length;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
@@ -154,6 +222,14 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
   const compareDinosaurs = dinosaurs.filter((dino) => compareIds.includes(dino.id));
   const quickViewDino = dinosaurs.find((dino) => dino.id === quickViewId) ?? null;
 
+  const selectedMyaRange: [number, number] = useMemo(() => {
+    const min = myaMin ?? MESOZOIC_MIN_MA;
+    const max = myaMax ?? MESOZOIC_MAX_MA;
+    const clampedMin = Math.min(Math.max(min, MESOZOIC_MIN_MA), MESOZOIC_MAX_MA);
+    const clampedMax = Math.min(Math.max(max, MESOZOIC_MIN_MA), MESOZOIC_MAX_MA);
+    return clampedMin <= clampedMax ? [clampedMin, clampedMax] : [clampedMax, clampedMin];
+  }, [myaMin, myaMax]);
+
   const filterPanelProps = {
     selectedPeriods,
     selectedDiets,
@@ -161,8 +237,16 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
     weightBounds,
     selectedLength: (selectedLengthRange as [number, number]) || [lengthBounds.min, lengthBounds.max],
     selectedWeight: (selectedWeightRange as [number, number]) || [weightBounds.min, weightBounds.max],
+    selectedMya: selectedMyaRange,
     onLengthChange: (range: [number, number]) => setLengthRange(range[0], range[1]),
     onWeightChange: (range: [number, number]) => setWeightRange(range[0], range[1]),
+    onMyaChange: (range: [number, number]) => {
+      if (range[0] <= MESOZOIC_MIN_MA && range[1] >= MESOZOIC_MAX_MA) {
+        setMyaRange(null, null);
+      } else {
+        setMyaRange(range[0], range[1]);
+      }
+    },
     onPeriodChange: (period: string) => togglePeriod(period),
     onDietChange: (diet: string) => toggleDiet(diet),
     onReset: clearFilters,
@@ -228,6 +312,7 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
               viewMode={viewMode}
               onViewModeChange={setViewMode}
               filterPanelProps={filterPanelProps}
+              onOpenAnalytics={() => setIsAnalyticsOpen(true)}
             />
 
             <SpecimenGallery
@@ -270,6 +355,15 @@ export function HomePageClient({ initialDinosaurs = [] }: HomePageClientProps) {
         dinosaur={quickViewDino}
         onClose={() => setQuickViewId(null)}
       />
+
+      {isAnalyticsOpen && (
+        <PaleoAnalyticsDialog
+          open={isAnalyticsOpen}
+          onOpenChange={setIsAnalyticsOpen}
+          allDinosaurs={dinosaurs}
+          filteredDinosaurs={filteredDinosaurs}
+        />
+      )}
 
       <LandingFooter />
     </div>

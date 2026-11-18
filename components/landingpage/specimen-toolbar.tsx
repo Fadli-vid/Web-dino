@@ -1,7 +1,7 @@
 'use client';
 
 import { ComponentProps } from 'react';
-import { SlidersHorizontal, LayoutGrid, List } from 'lucide-react';
+import { SlidersHorizontal, LayoutGrid, List, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -29,6 +29,7 @@ interface SpecimenToolbarProps {
   viewMode: 'grid' | 'list';
   onViewModeChange: (mode: 'grid' | 'list') => void;
   filterPanelProps: Omit<ComponentProps<typeof FilterPanel>, 'variant'>;
+  onOpenAnalytics?: () => void;
 }
 
 export function SpecimenToolbar({
@@ -39,6 +40,7 @@ export function SpecimenToolbar({
   viewMode,
   onViewModeChange,
   filterPanelProps,
+  onOpenAnalytics,
 }: SpecimenToolbarProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-4">
@@ -85,6 +87,20 @@ export function SpecimenToolbar({
             </div>
           </SheetContent>
         </Sheet>
+
+        {/* Paleobiology Data Analytics Trigger */}
+        {onOpenAnalytics && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onOpenAnalytics}
+            className="h-9 rounded-xl border-border/80 text-xs bg-background/80 hover:bg-card flex items-center gap-1.5"
+          >
+            <BarChart3 className="h-3.5 w-3.5 text-primary" />
+            <span>Analytics</span>
+          </Button>
+        )}
 
         {/* Sort Selector */}
         <Select value={sortKey} onValueChange={onSortChange}>

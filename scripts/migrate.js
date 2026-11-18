@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
+const { DINOSAUR_V2_METADATA } = require('./migrate-v2-schema');
 
 function parseCSVLine(line) {
   const fields = [];
@@ -68,11 +69,30 @@ function safeJson(str, isArray = false) {
 async function migrate() {
   console.log('--- Starting Clean TiDB Migration ---');
 
+  if (typeof process.loadEnvFile === 'function') {
+    try {
+      process.loadEnvFile();
+    } catch {
+      // Allow pre-injected environment variables when .env file is absent
+    }
+  }
+
+  const host = process.env.TIDB_HOST?.trim();
+  const user = process.env.TIDB_USER?.trim();
+  const password = process.env.TIDB_PASSWORD;
+  const database = process.env.TIDB_DATABASE?.trim() || 'wikidino';
+
+  if (!host || !user || !password) {
+    throw new Error(
+      'Missing TiDB credentials. Set TIDB_HOST, TIDB_USER, and TIDB_PASSWORD in .env.'
+    );
+  }
+
   const connection = await mysql.createConnection({
-    host: process.env.TIDB_HOST || '',
-    port: 4000,
-    user: process.env.TIDB_USER || '',
-    password: process.env.TIDB_PASSWORD || '',
+    host,
+    port: Number(process.env.TIDB_PORT) || 4000,
+    user,
+    password,
     ssl: {
       minVersion: 'TLSv1.2',
       rejectUnauthorized: false
@@ -81,17 +101,23 @@ async function migrate() {
 
   console.log('Connected to TiDB Cloud Server.');
 
-  await connection.query('CREATE DATABASE IF NOT EXISTS wikidino;');
-  await connection.query('USE wikidino;');
-  console.log('Using database `wikidino`.');
+  await connection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
+  await connection.query(`USE \`${database}\`;`);
+  console.log(`Using database \`${database}\`.`);
 
   console.log('Recreating table `dinosaurs`...');
   await connection.query('DROP TABLE IF EXISTS dinosaurs;');
 
   const schemeSql = fs.readFileSync(path.join(__dirname, '../doc/Scheme.sql'), 'utf-8');
   console.log('Executing Scheme.sql...');
-  await connection.query(schemeSql);
-  console.log('Table `dinosaurs` created cleanly.');
+  const statements = schemeSql
+    .split(/;\s*(?:\r?\n|$)/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const stmt of statements) {
+    await connection.query(stmt);
+  }
+  console.log('Tables created cleanly.');
 
   const csvContent = fs.readFileSync(path.join(__dirname, '../doc/dinosaurs_rows.csv'), 'utf-8');
   const rows = parseCSV(csvContent);
@@ -120,19 +146,27 @@ async function migrate() {
     const parsedTaxonomy = safeJson(taxonomy, false);
     const parsedCharacteristics = safeJson(characteristics, true);
 
+    const v2 = DINOSAUR_V2_METADATA[id ? id.trim() : ''] || {};
+
     const insertSql = `
       INSERT INTO dinosaurs (
-        id, name, scientific_name, period, length, weight, diet, description,
+        id, name, scientific_name, period, sub_period, mya_start, mya_end,
+        length, weight, diet, locomotion, continent, description,
         image, image_alt, taxonomy, characteristics, fossils, discovered,
         location_found, size_comparison_url, habitat_map_url, evolutionary_tree_url
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE
         name = VALUES(name),
         scientific_name = VALUES(scientific_name),
         period = VALUES(period),
+        sub_period = VALUES(sub_period),
+        mya_start = VALUES(mya_start),
+        mya_end = VALUES(mya_end),
         length = VALUES(length),
         weight = VALUES(weight),
         diet = VALUES(diet),
+        locomotion = VALUES(locomotion),
+        continent = VALUES(continent),
         description = VALUES(description),
         image = VALUES(image),
         image_alt = VALUES(image_alt),
@@ -152,9 +186,14 @@ async function migrate() {
         name ? name.trim() : null,
         scientific_name ? scientific_name.trim() : null,
         period ? period.trim() : null,
+        v2.sub_period || null,
+        v2.mya_start ?? null,
+        v2.mya_end ?? null,
         length && !isNaN(parseFloat(length)) ? parseFloat(length) : null,
         weight && !isNaN(parseFloat(weight)) ? parseFloat(weight) : null,
         diet ? diet.trim() : null,
+        v2.locomotion || null,
+        v2.continent || null,
         description ? description.trim() : null,
         image ? image.trim() : null,
         image_alt ? image_alt.trim() : null,

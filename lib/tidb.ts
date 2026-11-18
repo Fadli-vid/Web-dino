@@ -6,12 +6,22 @@ declare global {
 }
 
 function createTiDBPool(): Pool {
+  const host = process.env.TIDB_HOST?.trim();
+  const user = process.env.TIDB_USER?.trim();
+  const password = process.env.TIDB_PASSWORD;
+
+  if (!host || !user || !password) {
+    throw new Error(
+      'Missing TiDB credentials. Set TIDB_HOST, TIDB_USER, and TIDB_PASSWORD in .env.'
+    );
+  }
+
   return mysql.createPool({
-    host: process.env.TIDB_HOST || process.env.TIDB_HOST || '',
+    host,
     port: Number(process.env.TIDB_PORT) || 4000,
-    user: process.env.TIDB_USER || process.env.TIDB_USER || '',
-    password: process.env.TIDB_PASSWORD || process.env.TIDB_PASSWORD || '',
-    database: process.env.TIDB_DATABASE || 'wikidino',
+    user,
+    password,
+    database: process.env.TIDB_DATABASE?.trim() || 'wikidino',
     ssl: {
       minVersion: 'TLSv1.2',
       rejectUnauthorized: false,

@@ -1,4 +1,4 @@
-import { Dinosaur } from './types';
+import { Dinosaur, DinosaurSummary } from './types';
 
 // Client-safe fetch functions for Client Components
 export async function getDinosaurs(): Promise<Dinosaur[]> {
@@ -8,6 +8,17 @@ export async function getDinosaurs(): Promise<Dinosaur[]> {
     return await res.json();
   } catch (error) {
     console.error('Error fetching dinosaurs from API:', error);
+    return [];
+  }
+}
+
+export async function getDinosaursSummary(): Promise<DinosaurSummary[]> {
+  try {
+    const res = await fetch('/api/dinosaurs/summary');
+    if (!res.ok) throw new Error('Failed to fetch dinosaur summaries');
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching dinosaur summaries from API:', error);
     return [];
   }
 }

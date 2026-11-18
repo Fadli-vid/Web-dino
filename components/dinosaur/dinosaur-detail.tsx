@@ -1,14 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dinosaur } from '@/lib/types';
+import { Dinosaur, DinosaurSummary } from '@/lib/types';
 import Image from 'next/image';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
 import { ImageLightbox } from './image-lightbox';
+import { CitationDialog } from './citation-dialog';
+import { GlossaryText } from './glossary-text';
+import { ChronoTimelineBar } from './chrono-timeline-bar';
+import { RelatedSpecimens } from './related-specimens';
+import { AskPaleoPanel } from './ask-paleo-panel';
+import { useFieldNotebook } from '@/hooks/use-field-notebook';
 import {
   ArrowLeft,
+  Bookmark,
+  BookmarkCheck,
   BookOpen,
   Dna,
   Fingerprint,
@@ -29,12 +37,15 @@ import Link from 'next/link';
 
 interface DinosaurDetailProps {
   dinosaur: Dinosaur;
+  allSummaries?: DinosaurSummary[];
 }
 
 const dietStyles: Record<string, string> = {
   Carnivore: 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300',
   Herbivore: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
   Omnivore: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  Piscivore: 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300',
+  Insectivore: 'border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300',
 };
 
 const periodStyles: Record<string, string> = {
@@ -43,8 +54,16 @@ const periodStyles: Record<string, string> = {
   Cretaceous: 'border-teal-700/30 bg-teal-500/10 text-teal-700 dark:text-teal-300',
 };
 
-export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
+export function DinosaurDetail({ dinosaur, allSummaries = [] }: DinosaurDetailProps) {
   const [copied, setCopied] = useState(false);
+  const { isSaved, isHydrated, toggleSave, seedSummaries } = useFieldNotebook();
+  const savedInNotebook = isHydrated && isSaved(dinosaur.id);
+
+  useEffect(() => {
+    if (allSummaries.length > 0) {
+      seedSummaries(allSummaries);
+    }
+  }, [allSummaries, seedSummaries]);
   const [lightboxData, setLightboxData] = useState<{
     isOpen: boolean;
     imageUrl: string | null;
@@ -106,7 +125,33 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant={savedInNotebook ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => toggleSave(dinosaur.id)}
+            className={`rounded-xl text-xs flex items-center gap-1.5 h-8 ${
+              savedInNotebook
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                : 'border-border/80 bg-card/60 hover:bg-card'
+            }`}
+          >
+            {savedInNotebook ? (
+              <>
+                <BookmarkCheck className="w-3.5 h-3.5" />
+                <span>Saved</span>
+              </>
+            ) : (
+              <>
+                <Bookmark className="w-3.5 h-3.5 text-muted-foreground" />
+                <span>Save to Notebook</span>
+              </>
+            )}
+          </Button>
+
+          <CitationDialog dinosaur={dinosaur} />
+
           <Button
             type="button"
             variant="outline"
@@ -233,9 +278,14 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
             </p>
           </div>
 
-          <p className="text-sm sm:text-base text-muted-foreground/90 leading-relaxed">
-            {dinosaur.description}
-          </p>
+          <div className="space-y-1.5">
+            <p className="text-sm sm:text-base text-muted-foreground/90 leading-relaxed">
+              <GlossaryText text={dinosaur.description} />
+            </p>
+            <p className="text-[11px] text-muted-foreground/70 font-mono">
+              Tip: Hover or tap dotted terms for instant paleontology definitions.
+            </p>
+          </div>
 
           {/* Key Biometrics 4-Card Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 pt-2">
@@ -301,6 +351,9 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Chrono-Stratigraphic Mesozoic Timeline */}
+      <ChronoTimelineBar dinosaur={dinosaur} />
 
       {/* Biometric Scale Comparison */}
       <Card className="p-6 sm:p-8 border border-border/80 bg-card/75 backdrop-blur-md rounded-2xl shadow-sm space-y-6">
@@ -442,7 +495,9 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
                 className="flex items-start gap-3 rounded-xl border border-border/60 bg-muted/30 p-3 text-xs leading-relaxed"
               >
                 <div className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                <span className="text-foreground font-medium">{trait}</span>
+                <span className="text-foreground font-medium">
+                  <GlossaryText text={trait} />
+                </span>
               </div>
             ))}
           </div>
@@ -615,6 +670,12 @@ export function DinosaurDetail({ dinosaur }: DinosaurDetailProps) {
           </div>
         )}
       </Card>
+
+      {/* Ask Dr. Paleo AI Paleontologist Panel */}
+      <AskPaleoPanel dinosaur={dinosaur} />
+
+      {/* Smart Recommendation: Coeval Fauna & Taxonomic Relatives */}
+      <RelatedSpecimens currentDinosaur={dinosaur} allSummaries={allSummaries} />
 
       {/* Fullscreen Lightbox Modal */}
       <ImageLightbox

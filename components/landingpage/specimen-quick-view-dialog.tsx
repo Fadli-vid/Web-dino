@@ -2,9 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { Dinosaur } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
+import { useFieldNotebook } from '@/hooks/use-field-notebook';
 import {
   Dialog,
   DialogClose,
@@ -23,6 +25,9 @@ export function SpecimenQuickViewDialog({
   dinosaur,
   onClose,
 }: SpecimenQuickViewDialogProps) {
+  const { isSaved, isHydrated, toggleSave } = useFieldNotebook();
+  const saved = Boolean(dinosaur && isHydrated && isSaved(dinosaur.id));
+
   return (
     <Dialog
       open={Boolean(dinosaur)}
@@ -80,6 +85,22 @@ export function SpecimenQuickViewDialog({
                   className="flex-1 rounded-xl text-xs bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Link href={`/species/${dinosaur.id}`}>View Full Dossier</Link>
+                </Button>
+                <Button
+                  type="button"
+                  variant={saved ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => toggleSave(dinosaur.id)}
+                  className={`rounded-xl text-xs h-9 px-3 ${
+                    saved ? 'bg-primary text-primary-foreground' : ''
+                  }`}
+                  title={saved ? 'Remove from Field Notebook' : 'Save to Field Notebook'}
+                >
+                  {saved ? (
+                    <BookmarkCheck className="w-3.5 h-3.5" />
+                  ) : (
+                    <Bookmark className="w-3.5 h-3.5" />
+                  )}
                 </Button>
                 <DialogClose asChild>
                   <Button variant="outline" className="rounded-xl text-xs">

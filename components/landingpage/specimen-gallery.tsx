@@ -2,11 +2,12 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { SearchX } from 'lucide-react';
+import { Bookmark, BookmarkCheck, SearchX } from 'lucide-react';
 import { Dinosaur } from '@/lib/types';
 import { DinosaurCard } from '@/components/dinosaur/dinosaur-card';
 import { Button } from '@/components/ui/button';
 import { getOptimizedImageUrl } from '@/lib/cloudinary';
+import { useFieldNotebook } from '@/hooks/use-field-notebook';
 import {
   Empty,
   EmptyContent,
@@ -34,6 +35,7 @@ export function SpecimenGallery({
   onResetFilters,
 }: SpecimenGalleryProps) {
   const compareSet = new Set(compareIds);
+  const { isSaved, isHydrated, toggleSave } = useFieldNotebook();
 
   if (dinosaurs.length === 0) {
     return (
@@ -69,20 +71,45 @@ export function SpecimenGallery({
         {dinosaurs.map((dinosaur) => {
           const isCompared = compareSet.has(dinosaur.id);
           const isMaxCompare = compareIds.length >= 3 && !isCompared;
+          const isBookmarked = isHydrated && isSaved(dinosaur.id);
 
           return (
             <div key={dinosaur.id} className="relative group">
               <DinosaurCard dinosaur={dinosaur} />
 
               {/* Quick Action Overlay Buttons */}
-              <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+              <div
+                className={`absolute top-3 right-3 flex items-center gap-1.5 transition-opacity duration-200 z-10 ${
+                  isBookmarked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleSave(dinosaur.id);
+                  }}
+                  className={`p-1.5 rounded-lg backdrop-blur-md border shadow-sm transition-colors ${
+                    isBookmarked
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background/90 border-border text-foreground hover:bg-background opacity-0 group-hover:opacity-100'
+                  }`}
+                  title={isBookmarked ? 'Saved in Field Notebook' : 'Save to Field Notebook'}
+                  aria-label={isBookmarked ? `Remove ${dinosaur.name} from notebook` : `Save ${dinosaur.name} to notebook`}
+                >
+                  {isBookmarked ? (
+                    <BookmarkCheck className="w-3.5 h-3.5" />
+                  ) : (
+                    <Bookmark className="w-3.5 h-3.5" />
+                  )}
+                </button>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
                     onQuickView(dinosaur.id);
                   }}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-background/90 backdrop-blur-md border border-border text-foreground hover:bg-background shadow-sm transition-colors"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-background/90 backdrop-blur-md border border-border text-foreground hover:bg-background shadow-sm transition-colors opacity-0 group-hover:opacity-100"
                   title="Quick view specimen"
                 >
                   Quick View
@@ -98,8 +125,8 @@ export function SpecimenGallery({
                     isCompared
                       ? 'bg-primary text-primary-foreground border-primary'
                       : isMaxCompare
-                      ? 'bg-muted/70 text-muted-foreground border-border cursor-not-allowed opacity-60'
-                      : 'bg-background/90 border-border text-foreground hover:bg-background'
+                      ? 'bg-muted/70 text-muted-foreground border-border cursor-not-allowed opacity-0 group-hover:opacity-60'
+                      : 'bg-background/90 border-border text-foreground hover:bg-background opacity-0 group-hover:opacity-100'
                   }`}
                   title={
                     isCompared
@@ -125,6 +152,7 @@ export function SpecimenGallery({
       {dinosaurs.map((dinosaur) => {
         const isCompared = compareSet.has(dinosaur.id);
         const isMaxCompare = compareIds.length >= 3 && !isCompared;
+        const isBookmarked = isHydrated && isSaved(dinosaur.id);
 
         return (
           <div
@@ -168,6 +196,22 @@ export function SpecimenGallery({
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <Button
+                variant={isBookmarked ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => toggleSave(dinosaur.id)}
+                className={`rounded-xl text-xs px-2.5 ${
+                  isBookmarked ? 'bg-primary text-primary-foreground' : ''
+                }`}
+                title={isBookmarked ? 'Saved in Field Notebook' : 'Save to Field Notebook'}
+                aria-label={isBookmarked ? `Remove ${dinosaur.name} from notebook` : `Save ${dinosaur.name} to notebook`}
+              >
+                {isBookmarked ? (
+                  <BookmarkCheck className="w-3.5 h-3.5" />
+                ) : (
+                  <Bookmark className="w-3.5 h-3.5" />
+                )}
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"

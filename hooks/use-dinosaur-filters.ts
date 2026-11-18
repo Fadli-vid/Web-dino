@@ -2,7 +2,10 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
-import { Dinosaur } from '@/lib/types';
+import { Dinosaur, DinosaurPeriod } from '@/lib/types';
+
+export const MESOZOIC_MIN_MA = 66;
+export const MESOZOIC_MAX_MA = 252;
 
 function parseNumber(value: string | null) {
   if (value === null) {
@@ -11,6 +14,18 @@ function parseNumber(value: string | null) {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function getFallbackMyaRange(period: DinosaurPeriod): [number, number] {
+  switch (period) {
+    case 'Triassic':
+      return [201.3, 252];
+    case 'Jurassic':
+      return [145, 201.3];
+    case 'Cretaceous':
+    default:
+      return [66, 145];
+  }
 }
 
 export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
@@ -34,6 +49,8 @@ export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
   const lengthMax = useMemo(() => parseNumber(searchParams.get('lengthMax')), [searchParams]);
   const weightMin = useMemo(() => parseNumber(searchParams.get('weightMin')), [searchParams]);
   const weightMax = useMemo(() => parseNumber(searchParams.get('weightMax')), [searchParams]);
+  const myaMin = useMemo(() => parseNumber(searchParams.get('myaMin')), [searchParams]);
+  const myaMax = useMemo(() => parseNumber(searchParams.get('myaMax')), [searchParams]);
 
   const filteredDinosaurs = useMemo(() => {
     let results = dinosaursData;
@@ -70,8 +87,34 @@ export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
       results = results.filter((dino) => dino.weight >= min && dino.weight <= max);
     }
 
+    // Chrono-Stratigraphic interval overlap filter (in Million Years Ago / Ma)
+    if (myaMin !== null || myaMax !== null) {
+      const filterYounger = myaMin ?? MESOZOIC_MIN_MA;
+      const filterOlder = myaMax ?? MESOZOIC_MAX_MA;
+      const low = Math.min(filterYounger, filterOlder);
+      const high = Math.max(filterYounger, filterOlder);
+
+      results = results.filter((dino) => {
+        const [fallbackEnd, fallbackStart] = getFallbackMyaRange(dino.period);
+        const dinoEnd = dino.myaEnd ?? fallbackEnd;
+        const dinoStart = dino.myaStart ?? fallbackStart;
+        return dinoStart >= low && dinoEnd <= high;
+      });
+    }
+
     return results;
-  }, [dinosaursData, searchQuery, selectedPeriods, selectedDiets, lengthMin, lengthMax, weightMin, weightMax]);
+  }, [
+    dinosaursData,
+    searchQuery,
+    selectedPeriods,
+    selectedDiets,
+    lengthMin,
+    lengthMax,
+    weightMin,
+    weightMax,
+    myaMin,
+    myaMax,
+  ]);
 
   return {
     searchQuery,
@@ -81,6 +124,8 @@ export function useDinosaurFilters(dinosaursData: Dinosaur[] = []) {
     lengthMax,
     weightMin,
     weightMax,
+    myaMin,
+    myaMax,
     filteredDinosaurs,
   };
 }

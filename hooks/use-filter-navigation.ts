@@ -16,6 +16,8 @@ export function useFilterNavigation() {
       lengthMax?: number | null;
       weightMin?: number | null;
       weightMax?: number | null;
+      myaMin?: number | null;
+      myaMax?: number | null;
     }) => {
       const params = new URLSearchParams(searchParams);
 
@@ -65,8 +67,20 @@ export function useFilterNavigation() {
         params.set('weightMax', updates.weightMax.toString());
       }
 
+      if (updates.myaMin === null) {
+        params.delete('myaMin');
+      } else if (updates.myaMin !== undefined) {
+        params.set('myaMin', updates.myaMin.toString());
+      }
+
+      if (updates.myaMax === null) {
+        params.delete('myaMax');
+      } else if (updates.myaMax !== undefined) {
+        params.set('myaMax', updates.myaMax.toString());
+      }
+
       const queryString = params.toString();
-      router.push(queryString ? `/?${queryString}` : '/');
+      router.push(queryString ? `/?${queryString}` : '/', { scroll: false });
     },
     [router, searchParams]
   );
@@ -109,6 +123,8 @@ export function useFilterNavigation() {
       lengthMax: null,
       weightMin: null,
       weightMax: null,
+      myaMin: null,
+      myaMax: null,
     });
   }, [updateFilters]);
 
@@ -126,6 +142,13 @@ export function useFilterNavigation() {
     [updateFilters]
   );
 
+  const setMyaRange = useCallback(
+    (min: number | null, max: number | null) => {
+      updateFilters({ myaMin: min, myaMax: max });
+    },
+    [updateFilters]
+  );
+
   return {
     updateFilters,
     togglePeriod,
@@ -134,5 +157,6 @@ export function useFilterNavigation() {
     clearFilters,
     setLengthRange,
     setWeightRange,
+    setMyaRange,
   };
 }

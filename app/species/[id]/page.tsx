@@ -1,9 +1,14 @@
 import { DinosaurDetail } from '@/components/dinosaur/dinosaur-detail';
-import { getDinosaurByIdServer, getDinosaursServer } from '@/lib/dinosaurs-server';
+import {
+  getDinosaurByIdServer,
+  getDinosaursServer,
+  getDinosaursSummaryServer,
+} from '@/lib/dinosaurs-server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Compass, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SiteHeaderActions } from '@/components/shared/site-header-actions';
 
 interface SpeciesPageProps {
   params: Promise<{ id: string }>;
@@ -40,7 +45,10 @@ export async function generateMetadata({ params }: SpeciesPageProps) {
 
 export default async function SpeciesPage({ params }: SpeciesPageProps) {
   const { id } = await params;
-  const dinosaur = await getDinosaurByIdServer(id);
+  const [dinosaur, summaries] = await Promise.all([
+    getDinosaurByIdServer(id),
+    getDinosaursSummaryServer(),
+  ]);
 
   if (!dinosaur) {
     notFound();
@@ -65,15 +73,16 @@ export default async function SpeciesPage({ params }: SpeciesPageProps) {
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-md border border-border/60 bg-muted/40 text-xs font-mono text-muted-foreground">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-md border border-border/60 bg-muted/40 text-xs font-mono text-muted-foreground">
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               <span>Dossier: #{dinosaur.id.toUpperCase()}</span>
             </div>
-            <Button asChild variant="outline" size="sm" className="rounded-xl border-border/80 text-xs">
+            <SiteHeaderActions />
+            <Button asChild variant="outline" size="sm" className="rounded-xl border-border/80 text-xs h-8">
               <Link href="/" className="flex items-center gap-1.5">
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Back to Archive</span>
+                <span className="hidden sm:inline">Back to Archive</span>
               </Link>
             </Button>
           </div>
@@ -82,7 +91,7 @@ export default async function SpeciesPage({ params }: SpeciesPageProps) {
 
       {/* Main Specimen Dossier Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex-1 w-full">
-        <DinosaurDetail dinosaur={dinosaur} />
+        <DinosaurDetail dinosaur={dinosaur} allSummaries={summaries} />
       </main>
 
       {/* Museum Footer */}

@@ -2,18 +2,13 @@
 
 import Link from 'next/link';
 import { Compass } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { SiteHeaderActions } from '@/components/shared/site-header-actions';
 
 interface LandingHeaderProps {
   totalSpecies: number;
 }
 
-export function LandingHeader({ totalSpecies }: LandingHeaderProps) {
-  const handleScrollToLedger = () => {
-    const element = document.getElementById('specimen-ledger');
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+export function LandingHeader({ totalSpecies: _totalSpecies }: LandingHeaderProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/85 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -30,6 +25,8 @@ export function LandingHeader({ totalSpecies }: LandingHeaderProps) {
             </span>
           </div>
         </Link>
+
+        <SiteHeaderActions />
       </div>
     </header>
   );
