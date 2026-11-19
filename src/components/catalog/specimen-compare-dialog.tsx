@@ -134,26 +134,34 @@ export function SpecimenCompareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto border-border/80 bg-card/95 backdrop-blur-xl rounded-2xl">
-        <DialogHeader className="text-left border-b border-border/60 pb-3">
-          <DialogTitle className="font-[var(--font-display)] text-xl flex items-center gap-2">
-            <Scale className="w-5 h-5 text-primary" />
-            Specimen Comparison Matrix
-          </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Side-by-side morphological and taxonomic parameters of selected specimens.
-          </DialogDescription>
+      <DialogContent className="w-[calc(100vw-1rem)] sm:w-[95vw] sm:max-w-5xl lg:max-w-6xl max-h-[92vh] overflow-y-auto border-border/80 bg-card/95 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-7">
+        <DialogHeader className="text-left border-b border-border/60 pb-3.5 space-y-1.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
+              <Scale className="w-4 h-4" />
+            </div>
+            <div>
+              <DialogTitle className="font-[var(--font-display)] text-lg sm:text-xl font-bold text-foreground">
+                Specimen Comparison Matrix
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Side-by-side morphological, temporal, and taxonomic parameters of selected specimens ({compareDinosaurs.length} specimens).
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="overflow-x-auto py-3">
-          <table className="w-full text-xs text-left">
+          <table className="w-full text-xs sm:text-sm text-left">
             <thead>
               <tr className="border-b border-border/60">
-                <th className="py-2.5 px-3 font-semibold text-muted-foreground">Attribute</th>
+                <th className="py-3 px-3.5 sm:px-4 font-semibold text-muted-foreground text-xs sm:text-sm w-36 sm:w-44 shrink-0">
+                  Attribute
+                </th>
                 {compareDinosaurs.map((dino) => (
-                  <th key={dino.id} className="py-2.5 px-3 font-bold text-foreground text-sm">
+                  <th key={dino.id} className="py-3 px-3.5 sm:px-4 font-bold text-foreground text-sm sm:text-base min-w-[170px] sm:min-w-[200px]">
                     {dino.name}
-                    <span className="block text-[11px] font-normal italic text-muted-foreground">
+                    <span className="block text-[11px] font-normal italic font-serif text-muted-foreground">
                       {dino.scientificName}
                     </span>
                   </th>
@@ -162,12 +170,12 @@ export function SpecimenCompareDialog({
             </thead>
             <tbody className="divide-y divide-border/40">
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Visual</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Visual</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`img-${dino.id}`} className="py-2.5 px-3">
-                    <div className="relative w-20 h-14 rounded-lg overflow-hidden border border-border/60 bg-muted/40">
+                  <td key={`img-${dino.id}`} className="py-3 px-3.5 sm:px-4">
+                    <div className="relative w-28 sm:w-36 lg:w-44 h-20 sm:h-24 lg:h-28 rounded-xl overflow-hidden border border-border/60 bg-muted/40 shadow-xs">
                       <Image
-                        src={getOptimizedImageUrl(dino.image, { width: 300, quality: 'auto:good' })}
+                        src={getOptimizedImageUrl(dino.image, { width: 500, quality: 'auto:good' })}
                         alt={dino.name}
                         fill
                         className="object-cover"
@@ -177,12 +185,12 @@ export function SpecimenCompareDialog({
                 ))}
               </tr>
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Era / Period</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Era / Period</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`p-${dino.id}`} className="py-2.5 px-3 font-medium text-foreground">
-                    {dino.subPeriod || dino.period}
+                  <td key={`p-${dino.id}`} className="py-3 px-3.5 sm:px-4 font-medium text-foreground">
+                    <div>{dino.subPeriod || dino.period}</div>
                     {dino.myaStart !== undefined && dino.myaEnd !== undefined && (
-                      <span className="block text-[10px] font-mono text-muted-foreground">
+                      <span className="block text-[11px] font-mono text-muted-foreground">
                         {dino.myaStart}–{dino.myaEnd} Ma
                       </span>
                     )}
@@ -190,42 +198,44 @@ export function SpecimenCompareDialog({
                 ))}
               </tr>
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Diet</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Diet</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`d-${dino.id}`} className="py-2.5 px-3 font-medium text-foreground">
-                    {dino.diet}
+                  <td key={`d-${dino.id}`} className="py-3 px-3.5 sm:px-4 font-medium text-foreground">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted/60 border border-border/50">
+                      {dino.diet}
+                    </span>
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Body Length</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Body Length</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`l-${dino.id}`} className="py-2.5 px-3 font-mono font-medium text-foreground">
+                  <td key={`l-${dino.id}`} className="py-3 px-3.5 sm:px-4 font-mono font-medium text-foreground">
                     {dino.length} m
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Estimated Weight</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Estimated Weight</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`w-${dino.id}`} className="py-2.5 px-3 font-mono font-medium text-foreground">
+                  <td key={`w-${dino.id}`} className="py-3 px-3.5 sm:px-4 font-mono font-medium text-foreground">
                     {(dino.weight / 1000).toFixed(1)} tons
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Fossil Location</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Fossil Location</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`loc-${dino.id}`} className="py-2.5 px-3 text-muted-foreground">
+                  <td key={`loc-${dino.id}`} className="py-3 px-3.5 sm:px-4 text-muted-foreground">
                     {dino.locationFound || 'Archive record'}
                   </td>
                 ))}
               </tr>
               <tr>
-                <td className="py-2.5 px-3 font-medium text-muted-foreground">Action</td>
+                <td className="py-3 px-3.5 sm:px-4 font-medium text-muted-foreground">Action</td>
                 {compareDinosaurs.map((dino) => (
-                  <td key={`act-${dino.id}`} className="py-2.5 px-3">
-                    <Button asChild size="sm" variant="outline" className="rounded-lg text-xs h-7">
+                  <td key={`act-${dino.id}`} className="py-3 px-3.5 sm:px-4">
+                    <Button asChild size="sm" variant="outline" className="rounded-xl text-xs h-8 px-3.5 hover:bg-primary hover:text-primary-foreground transition-colors">
                       <Link href={`/species/${dino.id}`}>View Details</Link>
                     </Button>
                   </td>
@@ -237,15 +247,17 @@ export function SpecimenCompareDialog({
 
         {/* AI Paleo-Encounter Simulator (Quota-Optimized Canonical Cache) */}
         {compareDinosaurs.length >= 2 && (
-          <div className="border-t border-border/60 pt-4 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2">
-                <BrainCircuit className="w-4 h-4 text-primary shrink-0" />
+          <div className="border-t border-border/60 pt-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
+                  <BrainCircuit className="w-3.5 h-3.5" />
+                </div>
                 <div>
-                  <h3 className="font-[var(--font-display)] font-bold text-sm text-foreground">
+                  <h3 className="font-[var(--font-display)] font-bold text-sm sm:text-base text-foreground">
                     AI Paleo-Encounter & Biomechanical Analysis
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Verifies true historical overlap and contrasts evolutionary biomechanics. Cached globally in TiDB.
                   </p>
                 </div>
@@ -256,9 +268,9 @@ export function SpecimenCompareDialog({
                   <button
                     type="button"
                     onClick={() => setLang('en')}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono transition-colors ${
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono transition-colors ${
                       lang === 'en'
-                        ? 'bg-background text-foreground font-semibold'
+                        ? 'bg-background text-foreground font-semibold shadow-xs'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -267,9 +279,9 @@ export function SpecimenCompareDialog({
                   <button
                     type="button"
                     onClick={() => setLang('id')}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono transition-colors ${
+                    className={`px-2.5 py-1 rounded-md text-[10px] font-mono transition-colors ${
                       lang === 'id'
-                        ? 'bg-background text-foreground font-semibold'
+                        ? 'bg-background text-foreground font-semibold shadow-xs'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -282,7 +294,7 @@ export function SpecimenCompareDialog({
                   size="sm"
                   disabled={aiLoading}
                   onClick={() => void handleRunEncounterAnalysis()}
-                  className="h-8 rounded-xl text-xs bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5"
+                  className="h-8 rounded-xl text-xs bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-1.5 px-3"
                 >
                   {aiLoading ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -302,10 +314,10 @@ export function SpecimenCompareDialog({
             )}
 
             {aiResult && (
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold border ${
+                    className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-mono font-semibold border ${
                       aiResult.data.coexistedInHistory
                         ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                         : 'border-amber-500/35 bg-amber-500/10 text-amber-700 dark:text-amber-300'
@@ -324,8 +336,8 @@ export function SpecimenCompareDialog({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
-                  <div className="rounded-xl border border-border/70 bg-muted/25 p-3 space-y-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 text-xs sm:text-sm">
+                  <div className="rounded-xl border border-border/70 bg-muted/25 p-3.5 sm:p-4 space-y-1.5">
                     <div className="text-[10px] font-mono uppercase tracking-wider text-primary font-semibold">
                       Time & Geography Check
                     </div>
@@ -334,7 +346,7 @@ export function SpecimenCompareDialog({
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-muted/25 p-3 space-y-1">
+                  <div className="rounded-xl border border-border/70 bg-muted/25 p-3.5 sm:p-4 space-y-1.5">
                     <div className="text-[10px] font-mono uppercase tracking-wider text-primary font-semibold">
                       Biomechanics
                     </div>
@@ -343,7 +355,7 @@ export function SpecimenCompareDialog({
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-muted/25 p-3 space-y-1">
+                  <div className="rounded-xl border border-border/70 bg-muted/25 p-3.5 sm:p-4 space-y-1.5">
                     <div className="text-[10px] font-mono uppercase tracking-wider text-primary font-semibold">
                       Ecological Verdict
                     </div>

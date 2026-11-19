@@ -128,11 +128,10 @@ export function DinosaurDetail({ dinosaur, allSummaries = [] }: DinosaurDetailPr
             variant={savedInNotebook ? 'default' : 'outline'}
             size="sm"
             onClick={() => toggleSave(dinosaur.id)}
-            className={`rounded-xl text-xs flex items-center gap-1.5 h-8 ${
-              savedInNotebook
+            className={`rounded-xl text-xs flex items-center gap-1.5 h-8 ${savedInNotebook
                 ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                 : 'border-border/80 bg-card/60 hover:bg-card'
-            }`}
+              }`}
           >
             {savedInNotebook ? (
               <>
@@ -167,13 +166,6 @@ export function DinosaurDetail({ dinosaur, allSummaries = [] }: DinosaurDetailPr
                 <span>Share Dossier</span>
               </>
             )}
-          </Button>
-
-          <Button asChild variant="outline" size="sm" className="rounded-xl border-border/80 text-xs h-8 bg-card/60 hover:bg-card">
-            <Link href="/" className="flex items-center gap-1.5">
-              <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />
-              <span>Back to Archive</span>
-            </Link>
           </Button>
         </div>
       </div>
@@ -223,16 +215,14 @@ export function DinosaurDetail({ dinosaur, allSummaries = [] }: DinosaurDetailPr
               {/* Top Period & Diet Badges */}
               <div className="absolute top-4 left-4 flex flex-wrap gap-2 pointer-events-none z-10">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${
-                    periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'
-                  }`}
+                  className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${periodStyles[dinosaur.period] || 'border-border bg-background/80 text-foreground'
+                    }`}
                 >
                   {dinosaur.period}
                 </span>
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${
-                    dietStyles[dinosaur.diet] || 'border-border bg-muted text-foreground'
-                  }`}
+                  className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${dietStyles[dinosaur.diet] || 'border-border bg-muted text-foreground'
+                    }`}
                 >
                   {dinosaur.diet}
                 </span>

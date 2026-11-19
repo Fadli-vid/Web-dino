@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   BarChart3,
@@ -23,6 +23,8 @@ import {
   CommandShortcut,
 } from '@/components/ui/command';
 
+const SEARCH_DEBOUNCE_MS = 500;
+
 export function CommandPalette() {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,6 +38,10 @@ export function CommandPalette() {
     savedIds,
     isHydrated,
   } = useFieldNotebook();
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [isDebouncing, setIsDebouncing] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -52,8 +58,31 @@ export function CommandPalette() {
   useEffect(() => {
     if (isCommandOpen) {
       void ensureSummariesLoaded();
+    } else {
+      // Reset search query and debounced state when closing dialog
+      setSearchQuery('');
+      setDebouncedQuery('');
+      setIsDebouncing(false);
     }
   }, [isCommandOpen, ensureSummariesLoaded]);
+
+  // 0.5s Debounce timer for efficient search filtering
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      setDebouncedQuery('');
+      setIsDebouncing(false);
+      return;
+    }
+
+    setIsDebouncing(true);
+    const timer = setTimeout(() => {
+      setDebouncedQuery(trimmed);
+      setIsDebouncing(false);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
 
@@ -81,21 +110,125 @@ export function CommandPalette() {
     }
   };
 
+  const quickActions = useMemo(
+    () => [
+      {
+        id: 'action-notebook',
+        label: 'Open Field Notebook',
+        shortcut: isHydrated ? `${savedIds.length} saved` : '0 saved',
+        keywords: 'open field notebook bookmarks saved collection',
+        icon: <Bookmark className="w-4 h-4 text-primary" />,
+        onSelect: openNotebook,
+      },
+      {
+        id: 'action-analytics',
+        label: 'Open Paleobiology Analytics',
+        shortcut: 'Charts',
+        keywords: 'open paleobiology data analytics charts scatter plot biomass ecology',
+        icon: <BarChart3 className="w-4 h-4 text-primary" />,
+        onSelect: openAnalytics,
+      },
+      {
+        id: 'action-archive',
+        label: 'Browse Full Archive',
+        shortcut: 'Home',
+        keywords: 'browse full archive home catalog fossils list species',
+        icon: <Compass className="w-4 h-4 text-primary" />,
+        onSelect: () => navigateTo('/'),
+      },
+      {
+        id: 'action-triassic',
+        label: 'Filter Era: Triassic (252–201 Ma)',
+        keywords: 'filter era triassic early dinosaurs pangaea 252 201 ma',
+        icon: <Filter className="w-4 h-4 text-amber-500" />,
+        onSelect: () => navigateTo('/?periods=Triassic'),
+      },
+      {
+        id: 'action-jurassic',
+        label: 'Filter Era: Jurassic (201–145 Ma)',
+        keywords: 'filter era jurassic dinosaurs golden age 201 145 ma',
+        icon: <Filter className="w-4 h-4 text-emerald-500" />,
+        onSelect: () => navigateTo('/?periods=Jurassic'),
+      },
+      {
+        id: 'action-cretaceous',
+        label: 'Filter Era: Cretaceous (145–66 Ma)',
+        keywords: 'filter era cretaceous dinosaurs 145 66 ma k-pg impact',
+        icon: <Filter className="w-4 h-4 text-teal-500" />,
+        onSelect: () => navigateTo('/?periods=Cretaceous'),
+      },
+      {
+        id: 'action-carnivores',
+        label: 'Filter Diet: Carnivores',
+        keywords: 'filter diet carnivores meat eaters theropods predators',
+        icon: <Sparkles className="w-4 h-4 text-red-500" />,
+        onSelect: () => navigateTo('/?diets=Carnivore'),
+      },
+      {
+        id: 'action-herbivores',
+        label: 'Filter Diet: Herbivores',
+        keywords: 'filter diet herbivores plant eaters sauropods ceratopsians',
+        icon: <Sparkles className="w-4 h-4 text-emerald-500" />,
+        onSelect: () => navigateTo('/?diets=Herbivore'),
+      },
+    ],
+    [isHydrated, savedIds.length]
+  );
+
+  const queryTokens = useMemo(() => {
+    return debouncedQuery.toLowerCase().split(/\s+/).filter(Boolean);
+  }, [debouncedQuery]);
+
+  const filteredQuickActions = useMemo(() => {
+    if (queryTokens.length === 0) return quickActions;
+    return quickActions.filter((action) => {
+      const text = `${action.label} ${action.keywords}`.toLowerCase();
+      return queryTokens.every((token) => text.includes(token));
+    });
+  }, [quickActions, queryTokens]);
+
+  const filteredSavedSpecimens = useMemo(() => {
+    if (queryTokens.length === 0) return savedSpecimens;
+    return savedSpecimens.filter((dino) => {
+      const text = `${dino.name} ${dino.scientificName} ${dino.period} ${dino.subPeriod ?? ''} ${dino.diet} ${dino.continent ?? ''}`.toLowerCase();
+      return queryTokens.every((token) => text.includes(token));
+    });
+  }, [savedSpecimens, queryTokens]);
+
+  const filteredSpecimens = useMemo(() => {
+    if (queryTokens.length === 0) return summaries;
+    return summaries.filter((dino) => {
+      const text = `${dino.name} ${dino.scientificName} ${dino.period} ${dino.subPeriod ?? ''} ${dino.diet} ${dino.continent ?? ''} ${dino.taxonomy?.family ?? ''} ${dino.taxonomy?.order ?? ''}`.toLowerCase();
+      return queryTokens.every((token) => text.includes(token));
+    });
+  }, [summaries, queryTokens]);
+
   return (
     <CommandDialog
       open={isCommandOpen}
       onOpenChange={setIsCommandOpen}
+      shouldFilter={false}
       title="WikiDino Command Palette"
       description="Search dinosaur specimens, geological eras, or run quick archive actions."
       className="max-w-xl rounded-2xl border-border/80 bg-card/95 backdrop-blur-xl"
     >
-      <CommandInput placeholder="Search specimens, scientific names, families, eras..." />
+      <CommandInput
+        value={searchQuery}
+        onValueChange={setSearchQuery}
+        isLoading={isDebouncing}
+        placeholder="Search specimens, scientific names, families, eras..."
+      />
       <CommandList className="max-h-[380px]">
         <CommandEmpty>
           {isLoadingSummaries ? (
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-4">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
               <span>Loading paleontology archive index...</span>
+            </div>
+          ) : isDebouncing ? (
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-4 font-mono">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span>Filtering archive...</span>
             </div>
           ) : (
             <span className="text-xs text-muted-foreground">
@@ -104,69 +237,29 @@ export function CommandPalette() {
           )}
         </CommandEmpty>
 
-        <CommandGroup heading="Quick Actions">
-          <CommandItem value="open field notebook bookmarks saved" onSelect={openNotebook}>
-            <Bookmark className="w-4 h-4 text-primary" />
-            <span>Open Field Notebook</span>
-            <CommandShortcut>
-              {isHydrated ? `${savedIds.length} saved` : '0 saved'}
-            </CommandShortcut>
-          </CommandItem>
-          <CommandItem
-            value="open paleobiology data analytics charts scatter plot"
-            onSelect={openAnalytics}
-          >
-            <BarChart3 className="w-4 h-4 text-primary" />
-            <span>Open Paleobiology Analytics</span>
-            <CommandShortcut>Charts</CommandShortcut>
-          </CommandItem>
-          <CommandItem value="browse full archive home catalog" onSelect={() => navigateTo('/')}>
-            <Compass className="w-4 h-4 text-primary" />
-            <span>Browse Full Archive</span>
-            <CommandShortcut>Home</CommandShortcut>
-          </CommandItem>
-          <CommandItem
-            value="filter era triassic early dinosaurs"
-            onSelect={() => navigateTo('/?periods=Triassic')}
-          >
-            <Filter className="w-4 h-4 text-amber-500" />
-            <span>Filter Era: Triassic (252–201 Ma)</span>
-          </CommandItem>
-          <CommandItem
-            value="filter era jurassic dinosaurs"
-            onSelect={() => navigateTo('/?periods=Jurassic')}
-          >
-            <Filter className="w-4 h-4 text-emerald-500" />
-            <span>Filter Era: Jurassic (201–145 Ma)</span>
-          </CommandItem>
-          <CommandItem
-            value="filter era cretaceous dinosaurs"
-            onSelect={() => navigateTo('/?periods=Cretaceous')}
-          >
-            <Filter className="w-4 h-4 text-teal-500" />
-            <span>Filter Era: Cretaceous (145–66 Ma)</span>
-          </CommandItem>
-          <CommandItem
-            value="filter diet carnivores meat eaters"
-            onSelect={() => navigateTo('/?diets=Carnivore')}
-          >
-            <Sparkles className="w-4 h-4 text-red-500" />
-            <span>Filter Diet: Carnivores</span>
-          </CommandItem>
-          <CommandItem
-            value="filter diet herbivores plant eaters"
-            onSelect={() => navigateTo('/?diets=Herbivore')}
-          >
-            <Sparkles className="w-4 h-4 text-emerald-500" />
-            <span>Filter Diet: Herbivores</span>
-          </CommandItem>
-        </CommandGroup>
+        {filteredQuickActions.length > 0 && (
+          <CommandGroup heading="Quick Actions">
+            {filteredQuickActions.map((action) => (
+              <CommandItem
+                key={action.id}
+                value={action.label}
+                onSelect={action.onSelect}
+              >
+                {action.icon}
+                <span>{action.label}</span>
+                {action.shortcut && (
+                  <CommandShortcut>{action.shortcut}</CommandShortcut>
+                )}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
 
-        {savedSpecimens.length > 0 && (
+        {filteredSavedSpecimens.length > 0 && (
           <>
             <CommandSeparator />
             <CommandGroup heading="Saved in Field Notebook">
-              {savedSpecimens.map((dino) => (
+              {filteredSavedSpecimens.map((dino) => (
                 <CommandItem
                   key={`saved-${dino.id}`}
                   value={`saved ${dino.name} ${dino.scientificName} ${dino.period}`}
@@ -186,14 +279,20 @@ export function CommandPalette() {
           </>
         )}
 
-        {summaries.length > 0 && (
+        {filteredSpecimens.length > 0 && (
           <>
             <CommandSeparator />
-            <CommandGroup heading={`Specimens (${summaries.length})`}>
-              {summaries.map((dino) => (
+            <CommandGroup
+              heading={
+                queryTokens.length > 0
+                  ? `Specimens (${filteredSpecimens.length})`
+                  : `Specimens (${summaries.length})`
+              }
+            >
+              {filteredSpecimens.map((dino) => (
                 <CommandItem
                   key={dino.id}
-                  value={`${dino.name} ${dino.scientificName} ${dino.period} ${dino.subPeriod ?? ''} ${dino.diet} ${dino.continent ?? ''} ${dino.taxonomy?.family ?? ''} ${dino.taxonomy?.order ?? ''}`}
+                  value={`${dino.name} ${dino.scientificName} ${dino.period} ${dino.diet}`}
                   onSelect={() => navigateTo(`/species/${dino.id}`)}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 flex-1">
