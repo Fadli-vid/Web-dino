@@ -74,72 +74,16 @@ export function SpecimenGallery({
           const isBookmarked = isHydrated && isSaved(dinosaur.id);
 
           return (
-            <div key={dinosaur.id} className="relative group">
-              <DinosaurCard dinosaur={dinosaur} />
-
-              {/* Quick Action Overlay Buttons */}
-              <div
-                className={`absolute top-3 right-3 flex items-center gap-1.5 transition-opacity duration-200 z-10 ${
-                  isBookmarked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleSave(dinosaur.id);
-                  }}
-                  className={`p-1.5 rounded-lg backdrop-blur-md border shadow-sm transition-colors ${
-                    isBookmarked
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-background/90 border-border text-foreground hover:bg-background opacity-0 group-hover:opacity-100'
-                  }`}
-                  title={isBookmarked ? 'Saved in Field Notebook' : 'Save to Field Notebook'}
-                  aria-label={isBookmarked ? `Remove ${dinosaur.name} from notebook` : `Save ${dinosaur.name} to notebook`}
-                >
-                  {isBookmarked ? (
-                    <BookmarkCheck className="w-3.5 h-3.5" />
-                  ) : (
-                    <Bookmark className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onQuickView(dinosaur.id);
-                  }}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-background/90 backdrop-blur-md border border-border text-foreground hover:bg-background shadow-sm transition-colors opacity-0 group-hover:opacity-100"
-                  title="Quick view specimen"
-                >
-                  Quick View
-                </button>
-                <button
-                  type="button"
-                  disabled={isMaxCompare}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onToggleCompare(dinosaur);
-                  }}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium backdrop-blur-md border shadow-sm transition-colors ${
-                    isCompared
-                      ? 'bg-primary text-primary-foreground border-primary'
-                      : isMaxCompare
-                      ? 'bg-muted/70 text-muted-foreground border-border cursor-not-allowed opacity-0 group-hover:opacity-60'
-                      : 'bg-background/90 border-border text-foreground hover:bg-background opacity-0 group-hover:opacity-100'
-                  }`}
-                  title={
-                    isCompared
-                      ? 'Remove from compare'
-                      : isMaxCompare
-                      ? 'Maximum 3 specimens'
-                      : 'Add to compare'
-                  }
-                >
-                  {isCompared ? 'Selected' : '+ Compare'}
-                </button>
-              </div>
-            </div>
+            <DinosaurCard
+              key={dinosaur.id}
+              dinosaur={dinosaur}
+              isBookmarked={isBookmarked}
+              isCompared={isCompared}
+              isMaxCompare={isMaxCompare}
+              onToggleSave={toggleSave}
+              onQuickView={onQuickView}
+              onToggleCompare={onToggleCompare}
+            />
           );
         })}
       </div>
