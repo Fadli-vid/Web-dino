@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Image from 'next/image';
 import { getDinosaursServer } from '@/lib/db/dinosaurs-server';
 import { HomePageClient } from '@/components/catalog';
 
@@ -11,10 +12,18 @@ export default async function HomePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="flex items-center gap-3 text-sm text-muted-foreground font-mono">
-            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-            Loading Paleontology Archive...
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="flex flex-col items-center gap-3 text-sm text-muted-foreground font-mono text-center">
+            <Image
+              src="/Loading.gif"
+              alt="Loading Paleontology Archive"
+              width={288}
+              height={288}
+              unoptimized
+              priority
+              className="w-60 h-60 sm:w-72 sm:h-72 object-contain"
+            />
+            <span>Loading Paleontology Archive...</span>
           </div>
         </div>
       }
